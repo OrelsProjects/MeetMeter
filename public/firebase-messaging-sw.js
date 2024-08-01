@@ -19,16 +19,11 @@ firebase.initializeApp(firebaseConfig);
 class CustomPushEvent extends Event {
   constructor(data) {
     super("push");
-
     Object.assign(this, data);
     this.custom = true;
   }
 }
 
-/*
- * Overrides push notification data, to avoid having 'notification' key and firebase blocking
- * the message handler from being called
- */
 self.addEventListener("push", e => {
   if (e.custom) return;
   const oldData = e.data;
@@ -47,94 +42,91 @@ self.addEventListener("push", e => {
   dispatchEvent(newEvent);
 });
 
+const messaging = firebase.messaging();
+
 messaging.onBackgroundMessage(payload => {
-  console.log(
-    "[firebase-messaging-sw.js] Received background message ",
-    payload,
-  );
+  const { title, body, icon, badge, userId, type, ...restPayload } =
+    payload.data;
 
-  try {
-    const { title, body, icon, badge, userId, type, ...restPayload } =
-      payload.data;
+  // Define the default notification options
+  const notificationOptions = {
+    body,
+    icon,
+    badge,
+    data: { userId, ...restPayload },
+    tag: restPayload.tag || "pinky-partner",
+  };
 
-    const notificationOptions = {
-      body,
-      icon: icon,
-      badge: badge,
-      data: restPayload,
-      tag: restPayload.tag || "meet-meter",
-    };
-
+  // Check the type and conditionally add the action
+  if (type === "obligation") {
     notificationOptions.actions = [
       {
-        action: "event-rate-bad",
-        title: "Bad",
+        action: "sendGoodJob",
+        title: "Send Good Job",
       },
-      // {
-      //   action: "event-rate-good",
-      //   title: "Good",
-      // },
-      // {
-      //   action: "event-rate-excellent",
-      //   title: "Excellent",
-      // },
     ];
-
-    return self.registration.showNotification(title, notificationOptions);
-  } catch (error) {
-    console.error("Error showing notification:", error);
+  } else if (type === "nudge") {
+    notificationOptions.actions = [
+      {
+        action: "responseNudge",
+        title: "I'm on it!",
+      },
+    ];
   }
+
+  // Display the notification
+  self.registration.showNotification(title, notificationOptions);
 });
 
-// self.addEventListener("notificationclick", event => {
-//   console.log("Notification click event:", event);
-//   const { action } = event;
+self.addEventListener("notificationclick", event => {
+  // Handle action button click
+  if (event.action === "sendGoodJob") {
+    sendResponseToServer(
+      event.notification.data.toUserId,
+      event.notification.data.fromName,
+      "goodJob",
+    );
+  } else if (event.action === "responseNudge") {
+    sendResponseToServer(
+      event.notification.data.toUserId,
+      event.notification.data.fromName,
+      "nudge",
+    );
+  } else if (event.notification.data && event.notification.data.click_action) {
+    // Handle other notification click actions
+    self.clients.openWindow(event.notification.data.click_action);
+  } else {
+    // Default action: open application
+    self.clients.openWindow(event.currentTarget.origin);
+  }
+  event.notification.close();
+});
 
-//   try {
-//     switch (action) {
-//       case "event-rate-bad":
-//         sendResponseToServer("bad");
-//         return;
-//       case "event-rate-good":
-//         sendResponseToServer("good");
-//         return;
-//       case "event-rate-excellent":
-//         sendResponseToServer("excellent");
-//         return;
-//       default:
-//         break;
-//     }
+function sendResponseToServer(toUserId, fromName, type) {
+  const postUrl = "api/notifications";
+  const postData = {
+    title: "Good job!",
+    body: fromName + " is proud of you!",
+    userId: toUserId,
+    type: "response",
+  };
 
-//     if (event.notification.data && event.notification.data.click_action) {
-//       self.clients.openWindow(event.notification.data.click_action);
-//     } else {
-//       self.clients.openWindow(event.currentTarget.origin);
-//     }
+  if (type === "nudge") {
+    postData.title = fromName + " is on it!";
+    postData.body = fromName + " is working on their goal.";
+  }
 
-//     event.notification.close();
-//   } catch (error) {
-//     console.error("Error handling notification click:", error);
-//   }
-// });
-
-// function sendResponseToServer(response, eventId, calendarId) {
-//   const postUrl = `api/calendar/${calendarId}/event/${eventId}/response`;
-//   const postData = {
-//     response,
-//     type: "response-to-event",
-//   };
-
-//   fetch(postUrl, {
-//     method: "POST",
-//     headers: {
-//       "Content-Type": "application/json",
-//     },
-//     body: JSON.stringify(postData),
-//   })
-//     .then(data => {
-//       console.log("Success:", data);
-//     })
-//     .catch(error => {
-//       console.error("Error:", error);
-//     });
-// }
+  fetch(postUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(postData),
+  })
+    .then(data => {
+      console.log("Success:", data);
+    })
+    .catch(error => {
+      console.error("Error:", error);
+    });
+}
