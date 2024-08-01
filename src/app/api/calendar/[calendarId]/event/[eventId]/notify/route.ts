@@ -30,6 +30,14 @@ export async function POST(
     });
     const event = response.data;
     const attendees = event.attendees?.map(attendee => attendee.email);
+
+    if (!attendees) {
+      return NextResponse.json(
+        { error: "No attendees found" },
+        { status: 404 },
+      );
+    }
+
     const users = await prisma.user.findMany({
       where: {
         AND: [
