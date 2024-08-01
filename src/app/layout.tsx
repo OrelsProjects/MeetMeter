@@ -1,9 +1,9 @@
-import type { Metadata, Viewport } from "next";
+import React from "react";
 import "./globals.css";
+import type { Metadata, Viewport } from "next";
 import StoreProvider from "./providers/StoreProvider";
 import { ThemeProvider } from "./providers/ThemeProvider";
 import SessionWrapper from "./providers/SessionWrapper";
-import React, { useEffect } from "react";
 import AuthProvider from "./providers/AuthProvider";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/react";
@@ -11,10 +11,10 @@ import TopLoaderProvider from "./providers/TopLoaderProvider";
 import { initLogger } from "../logger";
 import ClientTrackersProvider from "./providers/ClientTrackersProvider";
 
-const APP_NAME = "Saas template";
-const APP_DEFAULT_TITLE = "Saas template";
-const APP_TITLE_TEMPLATE = "%s - Saas template";
-const APP_DESCRIPTION = "Build your SaaS easily!";
+const APP_NAME = process.env.APP_NAME as string;
+const APP_DEFAULT_TITLE = process.env.APP_DEFAULT_TITLE as string;
+const APP_TITLE_TEMPLATE = process.env.APP_TITLE_TEMPLATE as string;
+const APP_DESCRIPTION = process.env.APP_DESCRIPTION as string;
 
 interface RootLayoutProps {
   children: React.ReactNode;

@@ -5,6 +5,7 @@ import { authOptions } from "../../../auth/authOptions";
 import prisma from "../_db/db";
 import { messaging } from "../../../../firebase.config.admin";
 import { NotificationData } from "../../../models/notification";
+import { sendNotification } from "./utils";
 
 export async function POST(req: NextRequest): Promise<NextResponse<any>> {
   const session = await getServerSession(authOptions);
@@ -20,8 +21,8 @@ export async function POST(req: NextRequest): Promise<NextResponse<any>> {
       userId,
       type,
     }: NotificationData & { userId: string } = await req.json();
-    const user = await prisma.appUser.findUnique({
-      where: { userId },
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
       include: {
         meta: {
           select: {
@@ -57,59 +58,13 @@ export async function POST(req: NextRequest): Promise<NextResponse<any>> {
       );
     }
 
-    const message = {
-      data: {
-        title,
-        body: body || "",
-        icon: process.env.NOTIFICATION_LOGO_URL || "/notification-icon.png",
-        badge: "/notification-icon.png",
-        image: image || "",
-      },
-      webpush: {
-        fcmOptions: {
-          link: "https://www.pinkypartner.com/home",
-        },
-      },
-      apns: {
-        payload: {
-          aps: {
-            contentAvailable: true,
-            threadId: type,
-          },
-        },
-        headers: {
-          "apns-push-type": "background",
-          "apns-priority": "10", // Must be `5` when `contentAvailable` is set to true.
-        },
-      },
-      android: {
-        notification: {
-          icon: process.env.NOTIFICATION_LOGO_URL || "",
-          channelId: type,
-          tag: type,
-        },
-      },
-    };
-
-    try {
-      // Send to mobile
-      await messaging.send({
-        ...message,
-        token: user.meta?.pushTokenMobile || "",
-      });
-    } catch (error: any) {
-      Logger.error("Error sending mobile notification", session.user.userId, {
-        data: { error, token },
-      });
-    } finally {
-      // Send to web
-      await messaging.send({
-        ...message,
-        token,
-      });
-    }
-    Logger.info("Notification sent", session.user.userId, {
-      data: { message },
+   await sendNotification({
+      token: user.meta?.pushTokenMobile || user.meta?.pushToken || "",
+      userId: user.id,
+      title,
+      type,
+      body,
+      image,
     });
 
     return NextResponse.json({}, { status: 201 });

@@ -10,9 +10,11 @@ declare module "next-auth" {
     settings?: {
       showNotifications: boolean;
     };
+    accessToken?: string;
   }
 
   interface Session {
-    user: SessionUser & DefaultSession["user"];
+    user: SessionUser &
+      DefaultSession["user"] & { accessToken?: string | null };
   }
 }

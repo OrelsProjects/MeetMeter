@@ -66,7 +66,8 @@ const messaging = firebase.messaging();
 messaging.onBackgroundMessage(payload => {
   // console.log('[firebase-messaging-sw.js] Received background message ', payload);
 
-  const { title, body, icon, badge, ...restPayload } = payload.data;
+  const { title, body, icon, badge, userId, type, ...restPayload } =
+    payload.data;
 
   const notificationOptions = {
     body,
@@ -74,16 +75,46 @@ messaging.onBackgroundMessage(payload => {
     badge: badge,
     data: restPayload,
     // image: icon,
-    tag: restPayload.tag || "pinky-partner", // This is used to make sure all notifications with
+    tag: restPayload.tag || "meet-meter", // This is used to make sure all notifications with the same tag are grouped together
   };
+
+  if (type.includes("event-")) {
+    notificationOptions.actions = [
+      {
+        action: "event-rate-bad",
+        title: "Bad",
+      },
+      {
+        action: "event-rate-good",
+        title: "Good",
+      },
+      {
+        action: "event-rate-excellent",
+        title: "Excellent",
+      },
+    ];
+  }
 
   return self.registration.showNotification(title, notificationOptions);
 });
 
 self.addEventListener("notificationclick", event => {
-  // console.log('[firebase-messaging-sw.js] notificationclick ', event);
+  const { action } = event;
 
-  // click_action described at https://github.com/BrunoS3D/firebase-messaging-sw.js#click-action
+  switch (action) {
+    case "event-rate-bad":
+      sendResponseToServer("bad");
+      return;
+    case "event-rate-good":
+      sendResponseToServer("good");
+      return;
+    case "event-rate-excellent":
+      sendResponseToServer("excellent");
+      return;
+    default:
+      break;
+  }
+
   if (event.notification.data && event.notification.data.click_action) {
     self.clients.openWindow(event.notification.data.click_action);
   } else {
@@ -93,3 +124,25 @@ self.addEventListener("notificationclick", event => {
   // close notification after click
   event.notification.close();
 });
+
+function sendResponseToServer(response, eventId, calendarId) {
+  const postUrl = `api/calendar/${calendarId}/event/${eventId}/response`;
+  const postData = {
+    response,
+    type: "response-to-event",
+  };
+
+  fetch(postUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(postData),
+  })
+    .then(data => {
+      console.log("Success:", data);
+    })
+    .catch(error => {
+      console.error("Error:", error);
+    });
+}

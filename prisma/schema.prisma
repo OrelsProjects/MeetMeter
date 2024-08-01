@@ -1,35 +1,72 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
-  provider = "mongodb"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
-model AppUser {
-  id          String  @id @default(auto()) @map("_id") @db.ObjectId
-  userId      String  @unique
-  email       String  @unique
-  password    String?
-  displayName String?
-  photoURL    String?
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
 
-  meta     AppUserMetadata?
-  settings AppUserSettings?
-  Orders   UserOrders[]
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@map("appUser")
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime? @map("email_verified")
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+
+  meta         AppUserMetadata?
+  settings     AppUserSettings?
+  orders       UserOrders[]
+  UserResponse UserResponse[]
+
+  @@map("users")
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verificationtokens")
 }
 
 model AppUserMetadata {
-  appUserMetadataId String  @id @default(auto()) @map("_id") @db.ObjectId
+  appUserMetadataId String  @id @default(cuid())
   userId            String  @unique
   referralCode      String?
   referredBy        String?
@@ -37,24 +74,24 @@ model AppUserMetadata {
   pushToken       String?
   pushTokenMobile String?
 
-  appUser AppUser @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("appUserMetadata")
 }
 
 model AppUserSettings {
-  appUserSettingsId String @id @default(auto()) @map("_id") @db.ObjectId
+  appUserSettingsId String @id @default(cuid())
   userId            String @unique
 
   showNotifications Boolean @default(true)
 
-  appUser AppUser @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("appUserSettings")
 }
 
 model CartItems {
-  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  id       String @id @default(cuid())
   name     String
   currency String
   price    Float
@@ -65,18 +102,33 @@ model CartItems {
 }
 
 model UserOrders {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  id         String   @id @default(cuid())
   orderId    String   @unique
   userId     String
-  cartItemId String   @db.ObjectId
+  cartItemId String
   quantity   Int
   total      Float
   status     String   @default("pending") // pending, completed, cancelled
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  appUser  AppUser   @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   cartItem CartItems @relation(fields: [cartItemId], references: [id], onDelete: Cascade)
 
   @@map("userOrders")
+}
+
+model UserResponse {
+  id     String @id @default(cuid())
+  userId String
+
+  eventId    String
+  calendarId String
+
+  response  String // bad, good, excellent
+  respondAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: NoAction)
+
+  @@map("userResponse")
 }

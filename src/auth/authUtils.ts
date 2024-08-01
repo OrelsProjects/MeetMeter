@@ -1,106 +1,75 @@
-import { ReferralOptions } from "global";
 import { Session } from "next-auth";
 import { AdapterUser } from "next-auth/adapters";
 import { JWT } from "next-auth/jwt";
 import prisma from "../app/api/_db/db";
 import { generateReferalCode } from "../app/api/_utils/referralCode";
 import loggerServer from "../loggerServer";
-import { hash } from "bcrypt";
-import { ObjectId } from "mongodb";
-import { InvalidCredentialsError } from "../models/errors/InvalidCredentialsError";
 import { UnknownUserError } from "../models/errors/UnknownUserError";
-import UserAlreadyExistsError from "../models/errors/UserAlreadyExistsError";
-import { cookies } from "next/headers";
 
-const getReferralOptions = (): ReferralOptions => {
-  const referralCode = cookies().get("referralCode")?.value;
-  return {
-    referralCode,
-  };
-};
+import { Account } from "@prisma/client";
 
-const clearReferralCode = () => {
-  cookies().set("referralCode", "", {
-    expires: new Date(0),
-  });
-};
+/**
+ * Takes a token, and returns a new token with updated
+ * `accessToken` and `accessTokenExpires`. If an error occurs,
+ * returns the old token and an error property
+ */
+export async function refreshAccessToken(refreshToken: string) {
+  const url =
+    "https://oauth2.googleapis.com/token?" +
+    new URLSearchParams({
+      client_id: process.env.GOOGLE_AUTH_CLIENT_ID as string,
+      client_secret: process.env.GOOGLE_AUTH_CLIENT_SECRET as string,
+      grant_type: "refresh_token",
+      refresh_token: refreshToken,
+    });
 
-export const authorize = async (
-  credentials: any & {
-    email: string;
-    password: string;
-    displayName: string;
-    isSignIn: string;
-    referralCode: string;
-  },
-  req: any,
-) => {
-  if (!credentials) {
-    throw new Error("Unknown errror");
-  }
-
-  const hashedPassword = await hash(credentials.password, 10);
-
-  const user = await prisma.appUser.findFirst({
-    where: {
-      email: credentials.email,
+  const response = await fetch(url, {
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
     },
+    method: "POST",
   });
-  if (credentials.isSignIn === "true") {
-    if (user) {
-      const isValid = hashedPassword === user.password;
-      if (!isValid) {
-        throw new InvalidCredentialsError();
-      }
-      return user;
-    } else {
-      throw new UnknownUserError();
-    }
-  } else {
-    if (user) {
-      throw new UserAlreadyExistsError();
-    }
-    try {
-      const newUser = await prisma.appUser.create({
-        data: {
-          displayName: credentials.displayName,
-          email: credentials.email,
-          password: hashedPassword,
-          userId: new ObjectId().toHexString(),
-        },
-      });
-      // set userId to be newUser.userId
-      await prisma.appUser.update({
-        where: {
-          email: credentials.email,
-        },
-        data: {
-          userId: newUser.id,
-        },
-      });
-      const data: {
-        userId: string;
-        referralCode: string;
-        options?: ReferralOptions;
-      } = {
-        userId: newUser.id,
-        referralCode: generateReferalCode(newUser.id),
-      };
 
-      const referralOptions: ReferralOptions = getReferralOptions();
-      data.options = referralOptions;
+  const refreshedTokens = await response.json();
 
-      const appUserMetadata = await prisma.appUserMetadata.create({
-        data,
-      });
-      clearReferralCode();
-      return { ...newUser, meta: appUserMetadata };
-    } catch (e: any) {
-      loggerServer.error("Error creating user", "new_user", { error: e });
-      throw e;
-    }
+  if (!response.ok) {
+    throw refreshedTokens;
   }
-};
+
+  return {
+    accessToken: refreshedTokens.access_token,
+    accessTokenExpires: Date.now() + refreshedTokens.expires_in * 1000,
+    refreshToken: refreshedTokens.refresh_token || refreshToken, // Fall back to old refresh token
+  };
+}
+
+async function verifyToken(account: Account) {
+  if (!account.expires_at || !account.refresh_token) {
+    throw new Error("Login required");
+  }
+  const now = Date.now() / 1000;
+  const expireAtMilliseconds = new Date(account.expires_at).getTime();
+
+  if (now > expireAtMilliseconds) {
+    const refreshToken = account.refresh_token;
+    const newToken = await refreshAccessToken(refreshToken);
+    const expiresAtString = (
+      new Date(newToken.accessTokenExpires).getTime() / 1000
+    ).toString();
+    const expiresAt = parseInt(expiresAtString);
+
+    await prisma.account.update({
+      where: {
+        id: account.id,
+      },
+      data: {
+        access_token: newToken.accessToken,
+        expires_at: expiresAt,
+        refresh_token: newToken.refreshToken,
+      },
+    });
+  }
+}
 
 export const getSession = async ({
   session,
@@ -110,100 +79,74 @@ export const getSession = async ({
   session: Session;
   token: JWT;
   user: AdapterUser;
-}) => {
-  let userInDB = await prisma.appUser.findFirst({
+}): Promise<Session> => {
+  const newSession: Session = { ...session };
+  const appUser = await prisma.user.findFirst({
     where: {
-      userId: token.sub,
+      email: session.user.email,
     },
     include: {
       meta: true,
       settings: true,
+      accounts: {
+        orderBy: {
+          expires_at: "desc",
+        },
+      },
     },
   });
-  if (session?.user) {
-    if (session?.user.image !== userInDB?.photoURL) {
-      await prisma.appUser.update({
-        where: {
-          userId: token.sub,
-        },
-        data: {
-          photoURL: session.user.image,
-        },
-      });
-    }
 
-    if (!session.user.meta) {
-      session.user.meta = {
-        referralCode: "",
-        pushToken: "",
-      };
-    }
-    session.user.userId = token.sub!;
-    session.user.meta = {
-      referralCode: userInDB?.meta?.referralCode || "",
-    };
-    session.user.settings = userInDB?.settings || {
-      showNotifications: true,
-    };
+  const latestAccount = appUser?.accounts?.[0];
+  if (!latestAccount) {
+    throw new Error("No account found"); // Login required
   }
 
-  if (!session.user.meta.referralCode) {
-    try {
-      const referralCode = generateReferalCode(session.user.userId);
-      await prisma.appUserMetadata.update({
-        where: {
-          userId: token.sub,
-        },
-        data: {
-          referralCode,
-        },
-      });
-      session.user.meta.referralCode = referralCode;
-    } catch (e: any) {
-      loggerServer.error("Error updating referral code", session.user.userId, {
-        error: e,
-      });
-    }
+  await verifyToken(latestAccount);
+
+  const userId = appUser?.id;
+  if (!userId) {
+    throw new UnknownUserError();
   }
-  return session;
+
+  if (!appUser?.meta) {
+    await prisma.appUserMetadata.create({
+      data: {
+        userId,
+        referralCode: generateReferalCode(userId),
+      },
+    });
+  }
+
+  if (!appUser?.settings) {
+    await prisma.appUserSettings.create({
+      data: {
+        userId,
+        showNotifications: true,
+      },
+    });
+  }
+
+  newSession.user = {
+    ...newSession.user,
+    userId: appUser?.id || "",
+    meta: {
+      referralCode: appUser?.meta?.referralCode || "",
+      pushToken: appUser?.meta?.pushToken || "",
+    },
+    settings: {
+      showNotifications: appUser?.settings?.showNotifications || false,
+    },
+    accessToken: latestAccount.access_token || undefined,
+  };
+
+  return newSession;
 };
 
 export const signIn = async (session: any) => {
   try {
-    let additionalUserData = {};
-    let userInDB = await prisma.appUser.findFirst({
-      where: {
-        userId: session.user.id,
-      },
-      include: {
-        meta: true,
-      },
-    });
-
-    if (!userInDB) {
-      const referralOptions: ReferralOptions = getReferralOptions();
-      const newUser = await prisma.appUser.create({
-        data: {
-          userId: session.user.id,
-          email: session.user.email || "",
-          photoURL: session.user.image || "",
-          displayName: session.user.name || "",
-          meta: {
-            create: {
-              referredBy: referralOptions.referralCode,
-              referralCode: generateReferalCode(session.user.id),
-            },
-          },
-          settings: {
-            create: {
-              showNotifications: true,
-            },
-          },
-        },
-      });
-      additionalUserData = { ...newUser };
-    }
-
+    let additionalUserData: any = {
+      accessToken: session.account.access_token,
+    };
     return {
       ...session,
       ...additionalUserData,

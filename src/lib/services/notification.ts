@@ -33,7 +33,7 @@ export async function sendPushNotification(
   };
 }
 
-export async function requestPermission(): Promise<boolean> {
+export async function requestNotificationsPermission(): Promise<boolean> {
   if (!isNotificationSupported()) {
     return false;
   }
@@ -63,7 +63,7 @@ export async function getToken(): Promise<string | undefined> {
     return "";
   }
   if (isNotificationSupported()) {
-    const permissionGranted = await requestPermission();
+    const permissionGranted = await requestNotificationsPermission();
     if (!permissionGranted) {
       return ""; // TODO: Throw
     }
