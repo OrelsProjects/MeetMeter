@@ -32,7 +32,7 @@ export async function sendNotification(options: {
     },
     webpush: {
       fcmOptions: {
-        link: "https://www.meetsmeter.com",
+        link: "https://meet-meter-ikwx.vercel.app/",
       },
     },
     apns: {
