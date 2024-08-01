@@ -6,9 +6,13 @@ import { motion } from "framer-motion";
 
 interface ProviderProps {
   children?: React.ReactNode;
+  className?: string;
 }
 
-const AnimationProvider: React.FC<ProviderProps> = ({ children }) => {
+const AnimationProvider: React.FC<ProviderProps> = ({
+  children,
+  className,
+}) => {
   const previousPathame = useRef<string>("");
   const pathname = usePathname();
 
@@ -24,6 +28,7 @@ const AnimationProvider: React.FC<ProviderProps> = ({ children }) => {
       initial="pageInitial"
       animate="pageAnimate"
       exit="pageExit"
+      className={className}
       variants={{
         pageInitial: {
           opacity: 0,

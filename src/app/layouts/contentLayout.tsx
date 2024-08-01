@@ -32,7 +32,7 @@ export default function ContentLayout({ children }: RootLayoutProps) {
                 components: "googlepay,buttons",
               }}
             >
-              <AnimationProvider>{children}</AnimationProvider>
+              <AnimationProvider className="h-full">{children}</AnimationProvider>
             </PayPalScriptProvider>
           </ContentProvider>
         </HeightProvider>

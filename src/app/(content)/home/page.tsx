@@ -12,6 +12,7 @@ import {
 } from "../../../lib/features/events/eventsSlice";
 import EventComponent from "./eventComponent";
 import useNotification from "../../../lib/hooks/useNotification";
+import HintDownloadAppIOS from "./hintDownloadAppIOS";
 //  FOR TOMORROW: CREATE A COMPONENT FOR EVENT AND ADD A SEND TO ALL NOTIFICATION BUTTON.
 
 export default function Home() {
@@ -22,28 +23,31 @@ export default function Home() {
 
   const getTodaysEvents = async () => {
     setLoading(true);
-    const toastId = toast.loading("Getting today's events...");
+    // const toastId = toast.loading("Getting today's events...");
     try {
       const { data } = await axios.get<CalendarEvents>("api/calendar/today");
       dispatch(setEvents(data));
-      toast.update(toastId, {
-        render: "Got today's events",
-        type: "success",
-        isLoading: false,
-        autoClose: 2000,
-      });
+      // toast.update(toastId, {
+      //   render: "Got today's events",
+      //   type: "success",
+      //   isLoading: false,
+      //   autoClose: 2000,
+      // });
 
       setEvents(data);
     } catch (error: any) {
       toast.error(error.message);
     } finally {
       setLoading(false);
-      toast.dismiss(toastId);
+      // toast.dismiss(toastId);
     }
   };
 
   useEffect(() => {
-    requestNotificationsPermission(true);
+    requestNotificationsPermission(true)
+      .then(() => toast.success("Notifications enabled"))
+      .catch(() => toast.error("Notifications not enabled"));
+
     getTodaysEvents();
   }, []);
 
@@ -52,7 +56,7 @@ export default function Home() {
   }
 
   return (
-    <div className="overflow-clip flex flex-col gap-4">
+    <div className="h-full overflow-clip flex flex-col gap-4 justify-between">
       <ul className="overflow-y-auto flex flex-col gap-2">
         {events?.items?.map(event => (
           <li key={event.id}>
@@ -63,6 +67,7 @@ export default function Home() {
           </li>
         ))}
       </ul>
+      <HintDownloadAppIOS className="self-center" />
     </div>
   );
 }

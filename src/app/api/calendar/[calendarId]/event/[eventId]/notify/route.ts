@@ -65,7 +65,7 @@ export async function POST(
 
     const tokens: { userId: string; token?: string }[] = users?.map(user => ({
       userId: user.id,
-      token: user.meta?.pushTokenMobile || user.meta?.pushToken || undefined,
+      token: user.meta?.pushToken || user.meta?.pushTokenMobile || undefined,
     }));
 
     const notificationPromises = [];
@@ -84,7 +84,7 @@ export async function POST(
           body:
             session.user.name ||
             "Someone" + "asks you to rate" + event.summary.slice(0, 20),
-          onClickNavigateTo: `https://meet-meter-ikwx.vercel.app/${calendarId}/${eventId}`,
+          onClickNavigateTo: `https://meet-meter-ikwx.vercel.app/response/calendar/${calendarId}/event/${eventId}`,
           data: {
             eventId: event.id,
             calendarId: calendarId,

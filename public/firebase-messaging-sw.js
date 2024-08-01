@@ -54,7 +54,7 @@ messaging.onBackgroundMessage(payload => {
     icon,
     badge,
     data: { userId, ...restPayload },
-    tag: restPayload.tag || "pinky-partner",
+    tag: restPayload.tag || "meet-meter",
   };
 
   // Check the type and conditionally add the action
