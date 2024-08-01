@@ -79,39 +79,27 @@ messaging.onBackgroundMessage(payload => {
 });
 
 self.addEventListener("notificationclick", event => {
-  // Handle action button click
-  if (event.action === "sendGoodJob") {
-    sendResponseToServer(
-      event.notification.data.toUserId,
-      event.notification.data.fromName,
-      "goodJob",
-    );
-  } else if (event.action === "responseNudge") {
-    sendResponseToServer(
-      event.notification.data.toUserId,
-      event.notification.data.fromName,
-      "nudge",
-    );
-  } else if (event.notification.data && event.notification.data.click_action) {
-    // Handle other notification click actions
-    self.clients.openWindow(event.notification.data.click_action);
-  } else {
-    // Default action: open application
-    self.clients.openWindow(event.currentTarget.origin);
-  }
-  event.notification.close();
-});
-
-self.addEventListener("notificationclick", event => {
   switch (event.action) {
     case "event-rate-bad":
-      sendResponseToServer("bad");
+      sendResponseToServer(
+        "bad",
+        event.notification.data.eventId,
+        event.notification.data.calendarId,
+      );
       break;
     case "event-rate-good":
-      sendResponseToServer("good");
+      sendResponseToServer(
+        "good",
+        event.notification.data.eventId,
+        event.notification.data.calendarId,
+      );
       break;
     case "event-rate-excellent":
-      sendResponseToServer("excellent");
+      sendResponseToServer(
+        "excellent",
+        event.notification.data.eventId,
+        event.notification.data.calendarId,
+      );
       break;
     default:
       if (event.notification.data && event.notification.data.click_action) {
