@@ -63,10 +63,14 @@ self.addEventListener("push", e => {
 });
 
 messaging.onBackgroundMessage(payload => {
-  console.log("[firebase-messaging-sw.js] Received background message ", payload);
+  console.log(
+    "[firebase-messaging-sw.js] Received background message ",
+    payload,
+  );
 
   try {
-    const { title, body, icon, badge, userId, type, ...restPayload } = payload.data;
+    const { title, body, icon, badge, userId, type, ...restPayload } =
+      payload.data;
 
     const notificationOptions = {
       body,
@@ -76,22 +80,20 @@ messaging.onBackgroundMessage(payload => {
       tag: restPayload.tag || "meet-meter",
     };
 
-    if (type.includes("event-")) {
-      notificationOptions.actions = [
-        {
-          action: "event-rate-bad",
-          title: "Bad",
-        },
-        {
-          action: "event-rate-good",
-          title: "Good",
-        },
-        {
-          action: "event-rate-excellent",
-          title: "Excellent",
-        },
-      ];
-    }
+    notificationOptions.actions = [
+      {
+        action: "event-rate-bad",
+        title: "Bad",
+      },
+      {
+        action: "event-rate-good",
+        title: "Good",
+      },
+      {
+        action: "event-rate-excellent",
+        title: "Excellent",
+      },
+    ];
 
     return self.registration.showNotification(title, notificationOptions);
   } catch (error) {
