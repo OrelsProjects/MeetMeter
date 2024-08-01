@@ -30,66 +30,124 @@ class CustomPushEvent extends Event {
  * the message handler from being called
  */
 self.addEventListener("push", e => {
-  // Skip if event is our own custom event
+  console.log("Push event received:", e);
   if (e.custom) return;
 
-  // Kep old event data to override
-  const oldData = e.data;
+  try {
+    const oldData = e.data;
+    console.log("Old Data:", oldData.json());
 
-  // Create a new event to dispatch, pull values from notification key and put it in data key,
-  // and then remove notification key
-  const newEvent = new CustomPushEvent({
-    data: {
-      ehheh: oldData.json(),
-      json() {
-        const newData = oldData.json();
-        newData.data = {
-          ...newData.data,
-          ...newData.notification,
-        };
-        delete newData.notification;
-        return newData;
+    const newEvent = new CustomPushEvent({
+      data: {
+        ehheh: oldData.json(),
+        json() {
+          const newData = oldData.json();
+          newData.data = {
+            ...newData.data,
+            ...newData.notification,
+          };
+          delete newData.notification;
+          return newData;
+        },
       },
-    },
-    waitUntil: e.waitUntil.bind(e),
-  });
+      waitUntil: e.waitUntil.bind(e),
+    });
 
-  // Stop event propagation
-  e.stopImmediatePropagation();
+    console.log("New Event:", newEvent);
 
-  // Dispatch the new wrapped event
-  dispatchEvent(newEvent);
+    e.stopImmediatePropagation();
+    dispatchEvent(newEvent);
+  } catch (error) {
+    console.error("Error handling push event:", error);
+  }
 });
 
-const messaging = firebase.messaging();
-
 messaging.onBackgroundMessage(payload => {
-  // console.log('[firebase-messaging-sw.js] Received background message ', payload);
+  console.log("[firebase-messaging-sw.js] Received background message ", payload);
 
-  const { title, body, icon, badge, ...restPayload } = payload.data;
+  try {
+    const { title, body, icon, badge, userId, type, ...restPayload } = payload.data;
 
-  const notificationOptions = {
-    body,
-    icon: icon,
-    badge: badge,
-    data: restPayload,
-    // image: icon,
-    tag: restPayload.tag || "pinky-partner", // This is used to make sure all notifications with
-  };
+    const notificationOptions = {
+      body,
+      icon: icon,
+      badge: badge,
+      data: restPayload,
+      tag: restPayload.tag || "meet-meter",
+    };
 
-  return self.registration.showNotification(title, notificationOptions);
+    if (type.includes("event-")) {
+      notificationOptions.actions = [
+        {
+          action: "event-rate-bad",
+          title: "Bad",
+        },
+        {
+          action: "event-rate-good",
+          title: "Good",
+        },
+        {
+          action: "event-rate-excellent",
+          title: "Excellent",
+        },
+      ];
+    }
+
+    return self.registration.showNotification(title, notificationOptions);
+  } catch (error) {
+    console.error("Error showing notification:", error);
+  }
 });
 
 self.addEventListener("notificationclick", event => {
-  // console.log('[firebase-messaging-sw.js] notificationclick ', event);
+  console.log("Notification click event:", event);
+  const { action } = event;
 
-  // click_action described at https://github.com/BrunoS3D/firebase-messaging-sw.js#click-action
-  if (event.notification.data && event.notification.data.click_action) {
-    self.clients.openWindow(event.notification.data.click_action);
-  } else {
-    self.clients.openWindow(event.currentTarget.origin);
+  try {
+    switch (action) {
+      case "event-rate-bad":
+        sendResponseToServer("bad");
+        return;
+      case "event-rate-good":
+        sendResponseToServer("good");
+        return;
+      case "event-rate-excellent":
+        sendResponseToServer("excellent");
+        return;
+      default:
+        break;
+    }
+
+    if (event.notification.data && event.notification.data.click_action) {
+      self.clients.openWindow(event.notification.data.click_action);
+    } else {
+      self.clients.openWindow(event.currentTarget.origin);
+    }
+
+    event.notification.close();
+  } catch (error) {
+    console.error("Error handling notification click:", error);
   }
-
-  // close notification after click
-  event.notification.close();
 });
+
+function sendResponseToServer(response, eventId, calendarId) {
+  const postUrl = `api/calendar/${calendarId}/event/${eventId}/response`;
+  const postData = {
+    response,
+    type: "response-to-event",
+  };
+
+  fetch(postUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(postData),
+  })
+    .then(data => {
+      console.log("Success:", data);
+    })
+    .catch(error => {
+      console.error("Error:", error);
+    });
+}
