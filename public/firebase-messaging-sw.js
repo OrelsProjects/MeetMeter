@@ -61,8 +61,16 @@ messaging.onBackgroundMessage(payload => {
 
   notificationOptions.actions = [
     {
-      action: "sendGoodJob",
-      title: "Send Good Job",
+      action: "event-rate-bad",
+      title: "Bad",
+    },
+    {
+      action: "event-rate-good",
+      title: "Good",
+    },
+    {
+      action: "event-rate-excellent",
+      title: "Excellent",
     },
   ];
 
