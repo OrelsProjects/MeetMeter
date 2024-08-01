@@ -58,21 +58,13 @@ messaging.onBackgroundMessage(payload => {
   };
 
   // Check the type and conditionally add the action
-  if (type === "obligation") {
-    notificationOptions.actions = [
-      {
-        action: "sendGoodJob",
-        title: "Send Good Job",
-      },
-    ];
-  } else if (type === "nudge") {
-    notificationOptions.actions = [
-      {
-        action: "responseNudge",
-        title: "I'm on it!",
-      },
-    ];
-  }
+
+  notificationOptions.actions = [
+    {
+      action: "sendGoodJob",
+      title: "Send Good Job",
+    },
+  ];
 
   // Display the notification
   self.registration.showNotification(title, notificationOptions);
