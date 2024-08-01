@@ -32,9 +32,10 @@ export default function useNotification() {
     initToken?: boolean,
   ): Promise<boolean> {
     if (!canUseNotifications()) {
-      return false;
+      toast.error("Notifications are not supported on this device");
     }
     if (isPermissionGranted()) {
+      toast.info("Notifications are already enabled");
       return true;
     } else {
       initMessaging();
