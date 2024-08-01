@@ -9,10 +9,12 @@ export async function POST(
 ) {
   const session = await getServerSession(authOptions);
   if (!session) {
-    return {
-      status: 401,
-      json: { error: "Unauthorized" },
-    };
+    return NextResponse.json(
+      { error: "Unauthorized" },
+      {
+        status: 401,
+      },
+    );
   }
   try {
     const { calendarId, eventId } = params;
@@ -25,7 +27,6 @@ export async function POST(
         response,
       },
     });
-    return NextResponse.json({ success: true }, { status: 200 });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
