@@ -71,9 +71,11 @@ export async function POST(
         sendNotification({
           token,
           userId,
-          title: event.summary || "Event",
+          title: "Rate an event",
           type: "event-" + event.id,
-          body: event.description,
+          body:
+            session.user.name ||
+            "Someone" + "asks you to rate" + event.summary.slice(0, 20),
           onClickNavigateTo: `https://www.meetsmeter.com/response/${calendarId}/${eventId}`,
           data: {
             eventId: event.id,

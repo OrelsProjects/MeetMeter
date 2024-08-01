@@ -89,10 +89,10 @@ messaging.onBackgroundMessage(payload => {
         action: "event-rate-good",
         title: "Good",
       },
-      {
-        action: "event-rate-excellent",
-        title: "Excellent",
-      },
+      // {
+      //   action: "event-rate-excellent",
+      //   title: "Excellent",
+      // },
     ];
 
     return self.registration.showNotification(title, notificationOptions);
