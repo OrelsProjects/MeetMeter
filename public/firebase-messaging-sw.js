@@ -102,19 +102,36 @@ self.addEventListener("notificationclick", event => {
   event.notification.close();
 });
 
-function sendResponseToServer(toUserId, fromName, type) {
-  const postUrl = "api/notifications";
-  const postData = {
-    title: "Good job!",
-    body: fromName + " is proud of you!",
-    userId: toUserId,
-    type: "response",
-  };
-
-  if (type === "nudge") {
-    postData.title = fromName + " is on it!";
-    postData.body = fromName + " is working on their goal.";
+self.addEventListener("notificationclick", event => {
+  switch (event.action) {
+    case "event-rate-bad":
+      sendResponseToServer("bad");
+      break;
+    case "event-rate-good":
+      sendResponseToServer("good");
+      break;
+    case "event-rate-excellent":
+      sendResponseToServer("excellent");
+      break;
+    default:
+      if (event.notification.data && event.notification.data.click_action) {
+        self.clients.openWindow(event.notification.data.click_action);
+      } else {
+        self.clients.openWindow(event.currentTarget.origin);
+      }
+      break;
   }
+
+  // close notification after click
+  event.notification.close();
+});
+
+function sendResponseToServer(response, eventId, calendarId) {
+  const postUrl = `api/calendar/${calendarId}/event/${eventId}/response`;
+  const postData = {
+    response,
+    type: "response-to-event",
+  };
 
   fetch(postUrl, {
     method: "POST",
