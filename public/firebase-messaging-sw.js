@@ -83,22 +83,19 @@ self.addEventListener("notificationclick", event => {
     case "event-rate-bad":
       sendResponseToServer(
         "bad",
-        event.notification.data.eventId,
-        event.notification.data.calendarId,
+        event.notification.data.eventResponseId,
       );
       break;
     case "event-rate-good":
       sendResponseToServer(
         "good",
-        event.notification.data.eventId,
-        event.notification.data.calendarId,
+        event.notification.data.eventResponseId,
       );
       break;
     case "event-rate-excellent":
       sendResponseToServer(
         "excellent",
-        event.notification.data.eventId,
-        event.notification.data.calendarId,
+        event.notification.data.eventResponseId,
       );
       break;
     default:
@@ -114,11 +111,10 @@ self.addEventListener("notificationclick", event => {
   event.notification.close();
 });
 
-function sendResponseToServer(response, eventId, calendarId) {
-  const postUrl = `api/calendar/${calendarId}/event/${eventId}/response`;
+function sendResponseToServer(response, eventResponseId) {
+  const postUrl = `api/eventResponse/${eventResponseId}/response`;
   const postData = {
     response,
-    type: "response-to-event",
   };
 
   fetch(postUrl, {

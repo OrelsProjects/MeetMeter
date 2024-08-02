@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "userResponse" ALTER COLUMN "response" DROP NOT NULL,
+ALTER COLUMN "respondAt" DROP NOT NULL,
+ALTER COLUMN "respondAt" DROP DEFAULT;

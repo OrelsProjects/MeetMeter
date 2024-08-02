@@ -1,10 +1,14 @@
 import { ElementType } from "react";
 import { GoHomeFill as HomeActive, GoHome as Home } from "react-icons/go";
+import {
+  PiRankingDuotone as Responses,
+  PiRankingFill as ResponsesAction,
+} from "react-icons/pi";
 
 export interface NavigationBarItem {
   icon: ElementType;
   iconActive: ElementType;
-  label: "Home";
+  label: "Home" | "Responses";
   href: string;
 }
 
@@ -17,5 +21,11 @@ export const BottomBarItems: NavigationBarItem[] = [
     iconActive: () => <HomeActive className={classNameActive} />,
     label: "Home",
     href: "/home",
+  },
+  {
+    icon: () => <Responses className={className} />,
+    iconActive: () => <ResponsesAction className={classNameActive} />,
+    label: "Responses",
+    href: "/responses",
   },
 ];

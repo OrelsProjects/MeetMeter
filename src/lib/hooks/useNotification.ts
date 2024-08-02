@@ -35,7 +35,7 @@ export default function useNotification() {
       toast.error("Notifications are not supported on this device");
     }
     if (isPermissionGranted()) {
-      toast.info("Notifications are already enabled");
+      // toast.info("Notifications are already enabled");
       return true;
     } else {
       initMessaging();

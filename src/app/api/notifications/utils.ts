@@ -32,7 +32,7 @@ export async function sendNotification(options: {
     },
     webpush: {
       fcmOptions: {
-        link: "https://meet-meter-ikwx.vercel.app/",
+        link: process.env.APP_BASE_URL || "",
       },
     },
     apns: {

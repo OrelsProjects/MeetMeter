@@ -48,10 +48,12 @@ model User {
   accounts      Account[]
   sessions      Session[]
 
-  meta         AppUserMetadata?
-  settings     AppUserSettings?
-  orders       UserOrders[]
-  UserResponse UserResponse[]
+  meta                       AppUserMetadata?
+  settings                   AppUserSettings?
+  orders                     UserOrders[]
+  userResponse               UserResponse[]
+  responseEvent              ResponseEvent[]
+  ResponseEventNotifications ResponseEventNotifications[]
 
   @@map("users")
 }
@@ -122,13 +124,57 @@ model UserResponse {
   id     String @id @default(cuid())
   userId String
 
-  eventId    String
-  calendarId String
+  responseEventId String
 
-  response  String // bad, good, excellent
-  respondAt DateTime @default(now())
+  response  String? // bad, good, excellent
+  rating    Int?
+  comments  String?
+  respondAt DateTime?
 
-  user User @relation(fields: [userId], references: [id], onDelete: NoAction)
+  responseEvent ResponseEvent @relation(fields: [responseEventId], references: [id], onDelete: Cascade)
+  user          User          @relation(fields: [userId], references: [id], onDelete: NoAction)
 
+  @@unique([userId, responseEventId])
   @@map("userResponse")
+}
+
+model ResponseEvent {
+  id String @id @default(cuid())
+
+  summary     String
+  description String?
+
+  start DateTime
+  end   DateTime
+
+  organizer String
+
+  calendarId String
+  eventId    String
+
+  user         User           @relation(fields: [organizer], references: [id], onDelete: NoAction)
+  userResponse UserResponse[]
+
+  createdAt                  DateTime                     @default(now())
+  updatedAt                  DateTime                     @updatedAt
+  ResponseEventNotifications ResponseEventNotifications[]
+
+  @@unique([calendarId, eventId])
+  @@map("responseEvent")
+}
+
+model ResponseEventNotifications {
+  id String @id @default(cuid())
+
+  responseEventId String
+  sentBy          String
+
+  notificationType String // email, push, sms
+
+  sentAt DateTime @default(now())
+
+  responseEvent ResponseEvent @relation(fields: [responseEventId], references: [id], onDelete: Cascade)
+  user          User          @relation(fields: [sentBy], references: [id], onDelete: NoAction)
+
+  @@map("responseEventNotifications")
 }
