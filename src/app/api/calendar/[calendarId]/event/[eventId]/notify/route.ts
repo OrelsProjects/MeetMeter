@@ -144,6 +144,14 @@ export async function POST(
       skipDuplicates: true,
     });
 
+    // create a response for the user who sent the notification
+    await prisma.userResponse.create({
+      data: {
+        responseEventId: responseEvent.id,
+        userId: session.user.userId,
+      },
+    });
+
     const tokens: { userId: string; token?: string }[] = users?.map(user => ({
       userId: user.id,
       token: user.meta?.pushToken || user.meta?.pushTokenMobile || undefined,

@@ -1,226 +1,60 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { ResponseEvent } from "@prisma/client";
 import useResponse from "@/lib/hooks/useResponse";
-import LoadingError from "@/models/errors/LoadingError";
-import { toast } from "react-toastify";
-import { useFormik } from "formik";
-import * as Yup from "yup";
-import { cn } from "@/lib/utils";
-import { Skeleton } from "@/components/ui/skeleton";
+import { selectEvents } from "../../../lib/features/events/eventsSlice";
+import { useAppSelector } from "../../../lib/hooks/redux";
+import { useEffect } from "react";
+import LoadingError from "../../../models/errors/LoadingError";
+import { Logger } from "../../../logger";
+import { RatingComponent } from "./rating";
+import { Button } from "../../../components/ui/button";
 
-const Comments = ({
-  value,
-  onChange,
-  error,
-  loading,
-}: {
-  value: string;
-  onChange: (value: string) => void;
-  error?: string;
-  loading?: boolean;
-}) => {
-  return (
-    <div className="flex flex-col gap-2">
-      <h1 className="text-sm font-bold tracking-wide">
-        {loading ? (
-          <Skeleton className="w-[10rem] h-6" />
-        ) : (
-          "Anything else you'd like to add?"
-        )}
-      </h1>
-      <Textarea
-        loading={loading}
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        placeholder="Enter your comments here..."
-      />
-      {error && <div className="text-destructive text-sm">{error}</div>}
-    </div>
-  );
-};
-
-const ratingMap = [
-  {
-    rating: 1,
-    text: "Terrible",
-    emoji: "😠",
-  },
-  {
-    rating: 2,
-    text: "Bad",
-    emoji: "🙄",
-  },
-  {
-    rating: 3,
-    text: "Okay",
-    emoji: "🧐",
-  },
-  {
-    rating: 4,
-    text: "Good",
-    emoji: "🙂",
-  },
-  {
-    rating: 5,
-    text: "Excellent",
-    emoji: "🥳",
-  },
-];
-
-const Rating = ({
-  value,
-  onChange,
-  loading,
-}: {
-  value: number | null;
-  onChange: (value: number) => void;
-  loading?: boolean;
-}) => {
-  return (
-    <div className="w-full flex flex-row justify-between gap-2">
-      {Array.from({ length: 5 }).map((_, index) =>
-        loading ? (
-          <Skeleton
-            key={`rating-${index}-loading`}
-            className="h-20 w-[4.5rem] md:h-24 md:w-[5.5rem] rounded-[4px] flex flex-col items-center justify-center"
-          />
-        ) : (
-          <div
-            key={`rating-${index}`}
-            className={cn(
-              "h-20 w-[4.5rem] md:h-24 md:w-[5.5rem] border-[1px] bg-card border-gray-300 rounded-[4px] flex flex-col items-center justify-center hover:shadow-md hover:shadow-secondary transition-all cursor-pointer",
-              {
-                "border-primary shadow-md shadow-secondary":
-                  value === index + 1,
-              },
-            )}
-            onClick={() => onChange(index)}
-          >
-            <div className="text-lg md:text-2xl">{ratingMap[index].emoji}</div>
-            <div className="text-xs md:text-sm">{ratingMap[index].text}</div>
-          </div>
-        ),
-      )}
-    </div>
-  );
-};
-
-const ResponsePage = ({ params }: { params: { responseId: string } }) => {
+const ResponsePage = () => {
   const router = useRouter();
-  const { getEventResponse, sendResponse, loadingSend, loadingFetch } =
-    useResponse();
-
-  const [event, setEvent] = useState<ResponseEvent | null>(null);
-
-  const formik = useFormik({
-    initialValues: {
-      comments: "",
-      rating: null,
-    },
-    validationSchema: Yup.object({
-      comments: Yup.string().required("Comments are required"),
-      rating: Yup.number()
-        .required("Rating is required")
-        .min(1, "Rating is required"),
-    }),
-    onSubmit: async values => {
-      await toast.promise(
-        sendResponse(params.responseId, {
-          rating: values.rating,
-          comments: values.comments,
-          response: "",
-        }),
-        {
-          pending: "Sending response...",
-          success: "Response sent",
-          error: "Failed to send response",
-        },
-      );
-    },
-  });
-
-  const getEvent = async () => {
-    try {
-      const data = await getEventResponse(params.responseId);
-      setEvent(data.responseEvent);
-      if (!formik.values.comments) {
-        formik.setFieldValue("comments", data.userResponse.comments || "");
-      }
-      if (!formik.values.rating) {
-        formik.setFieldValue("rating", data.userResponse.rating);
-      }
-    } catch (error: any) {
-      if (error instanceof LoadingError) return;
-
-      const status = error.response.status;
-      if (status === 403 || status === 404) {
-        alert("You are not a part of this event");
-        router.push(`/home`);
-      }
-    }
-  };
+  const { getUserEventResponses, loadingFetch } = useResponse();
+  const { userEventResponses } = useAppSelector(selectEvents);
 
   useEffect(() => {
-    getEvent();
+    getUserEventResponses().catch(error => {
+      if (error instanceof LoadingError) {
+        return;
+      }
+      Logger.error(error);
+    });
   }, []);
 
-  const updateRating = (index: number) => {
-    formik.setFieldValue("rating", index + 1);
-  };
-
   return (
-    <form onSubmit={formik.handleSubmit} className="flex flex-col gap-10">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold tracking-wide">
-          <span>
-            {loadingFetch ? (
-              <Skeleton className="w-[6rem] h-6" />
+    userEventResponses && (
+      <div className="flex flex-col gap-4">
+        {userEventResponses.map(response => (
+          <div
+            key={response.id}
+            className="w-full md:max-w-72 h-fit md:h-fit flex flex-col justify-center items-center gap-3 bg-card rounded-md p-2 hover:cursor-pointer"
+            onClick={() => {
+              router.push(`/responses/${response.responseEventId}`);
+            }}
+          >
+            <h1 className="font-semibold">{response.responseEvent.summary}</h1>
+            {response.respondAt ? (
+              response.rating && (
+                <>
+                  <RatingComponent
+                    value={response.rating - 1}
+                    selected
+                    className="shadow-none self-center border-none p-0 !h-fit"
+                    showText={false}
+                  />
+                  <p>{response.comments}</p>
+                </>
+              )
             ) : (
-              "Give feedback"
+              <Button>Rate event</Button>
             )}
-          </span>
-        </h1>
-        <h3 className="font-medium">
-          {loadingFetch ? (
-            <Skeleton className="w-[10rem] h-6" />
-          ) : (
-            event?.summary
-          )}
-        </h3>
+          </div>
+        ))}
       </div>
-      {/* <div
-        className="text-base"
-        dangerouslySetInnerHTML={{ __html: event?.description || "" }}
-      /> */}
-      <Rating
-        value={formik.values.rating}
-        onChange={updateRating}
-        loading={loadingFetch}
-      />
-      {formik.errors.rating && formik.touched.rating && (
-        <div className="text-destructive text-sm">{formik.errors.rating}</div>
-      )}
-      <Comments
-        loading={loadingFetch}
-        value={formik.values.comments}
-        onChange={value => formik.setFieldValue("comments", value)}
-        error={
-          formik.errors.comments && formik.touched.comments
-            ? formik.errors.comments
-            : undefined
-        }
-      />
-      {loadingFetch ? (
-        <Skeleton className="w-full h-6" />
-      ) : (
-        <Button type="submit">Submit</Button>
-      )}
-    </form>
+    )
   );
 };
 

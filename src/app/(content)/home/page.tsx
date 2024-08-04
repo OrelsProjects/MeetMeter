@@ -45,7 +45,7 @@ export default function Home() {
 
   useEffect(() => {
     requestNotificationsPermission(true)
-      .then(() => toast.success("Notifications enabled"))
+      // .then(() => toast.success("Notifications enabled"))
       .catch(() => toast.error("Notifications not enabled"));
 
     getTodaysEvents();

@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { ResponseEvent } from "@prisma/client";
+import { ResponseEvent, UserResponse } from "@prisma/client";
 import useResponse from "@/lib/hooks/useResponse";
 import LoadingError from "@/models/errors/LoadingError";
 import { toast } from "react-toastify";
@@ -87,13 +87,13 @@ const Rating = ({
         loading ? (
           <Skeleton
             key={`rating-${index}-loading`}
-            className="h-20 w-[4.5rem] md:h-24 md:w-[5.5rem] rounded-[4px] flex flex-col items-center justify-center"
+            className="h-20 w-[4.5rem] md:h-24 md:w-[5.5rem] rounded-[6px] flex flex-col items-center justify-center"
           />
         ) : (
           <div
             key={`rating-${index}`}
             className={cn(
-              "h-20 w-[4.5rem] md:h-24 md:w-[5.5rem] border-[1px] bg-card border-gray-300 rounded-[4px] flex flex-col items-center justify-center hover:shadow-md hover:shadow-secondary transition-all cursor-pointer",
+              "h-20 w-[4.5rem] md:h-24 md:w-[5.5rem] border-[1px] bg-card border-gray-300 rounded-[6px] flex flex-col items-center justify-center hover:shadow-md hover:shadow-secondary transition-all duration-100 cursor-pointer",
               {
                 "border-primary shadow-md shadow-secondary":
                   value === index + 1,
@@ -116,6 +116,7 @@ const ResponsePage = ({ params }: { params: { responseId: string } }) => {
     useResponse();
 
   const [event, setEvent] = useState<ResponseEvent | null>(null);
+  const [userResponse, setUserResponse] = useState<UserResponse | null>(null);
 
   const formik = useFormik({
     initialValues: {
@@ -137,7 +138,12 @@ const ResponsePage = ({ params }: { params: { responseId: string } }) => {
         }),
         {
           pending: "Sending response...",
-          success: "Response sent",
+          success: {
+            render() {
+              router.push("/responses");
+              return "Response sent!";
+            },
+          },
           error: "Failed to send response",
         },
       );
@@ -148,6 +154,8 @@ const ResponsePage = ({ params }: { params: { responseId: string } }) => {
     try {
       const data = await getEventResponse(params.responseId);
       setEvent(data.responseEvent);
+      setUserResponse(data.userResponse);
+
       if (!formik.values.comments) {
         formik.setFieldValue("comments", data.userResponse.comments || "");
       }
@@ -172,6 +180,14 @@ const ResponsePage = ({ params }: { params: { responseId: string } }) => {
   const updateRating = (index: number) => {
     formik.setFieldValue("rating", index + 1);
   };
+
+  const isResponseUpdated = useMemo(() => {
+    return (
+      (formik.values.comments &&
+        formik.values.comments !== userResponse?.comments) ||
+      (formik.values.rating && formik.values.rating !== userResponse?.rating)
+    );
+  }, [formik.values, userResponse]);
 
   return (
     <form onSubmit={formik.handleSubmit} className="flex flex-col gap-10">
@@ -218,7 +234,9 @@ const ResponsePage = ({ params }: { params: { responseId: string } }) => {
       {loadingFetch ? (
         <Skeleton className="w-full h-6" />
       ) : (
-        <Button type="submit">Submit</Button>
+        <Button type="submit" disabled={loadingSend || !isResponseUpdated}>
+          Submit
+        </Button>
       )}
     </form>
   );

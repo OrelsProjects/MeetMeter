@@ -22,7 +22,7 @@ export async function POST(
     const { response }: { response: SendUserResponse } = await req.json();
     const respondAt = new Date();
 
-    await prisma.userResponse.upsert({
+    const userResponse = await prisma.userResponse.upsert({
       where: {
         userId_responseEventId: {
           userId: session.user.userId,
@@ -37,7 +37,7 @@ export async function POST(
         respondAt,
       },
     });
-    return NextResponse.json({}, { status: 201 });
+    return NextResponse.json(userResponse, { status: 201 });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
