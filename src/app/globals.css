@@ -32,8 +32,8 @@
     --radius: 0.75rem;
 
     --primary-lighter: 142 62% 59%;
-    --contracts-in-row: 2;
-    --contracts-in-row-mobile: 1;
+    --responses-in-row: 2;
+    --responses-in-row-mobile: 1;
   }
 
   .dark {

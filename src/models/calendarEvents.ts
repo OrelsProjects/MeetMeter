@@ -3,6 +3,8 @@ export interface CalendarEvents {
   etag: string;
   summary: string;
   description: string;
+  calendarBackgroundColor?: string;
+  calendarForegroundColor?: string;
   updated: string;
   timeZone: string;
   accessRole: string;

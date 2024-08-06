@@ -19,7 +19,7 @@ const BOTTOM_BAR_HEIGHT = 65;
 
 const ContentProvider: React.FC<ContentProviderProps> = ({ children }) => {
   const { user, state } = useAppSelector(state => state.auth);
-  const { theme } = useTheme();
+  const { resolvedTheme } = useTheme();
   const sizeContent = React.useContext(SizeContext);
   const bottomBarRef = React.useRef<HTMLDivElement>(null);
   const [contentHeight, setContentHeight] = React.useState<number>(
@@ -39,7 +39,7 @@ const ContentProvider: React.FC<ContentProviderProps> = ({ children }) => {
     <div className="w-screen h-screen md:h-[100vh] flex flex-col relative">
       <div
         className={cn(
-          "w-full lg:max-w-[65rem] mx-auto lg:flex p-4 relative md:!h-screen md:!max-h-screen",
+          "w-full lg:max-w-[65rem] mx-auto lg:flex p-4 relative",
           {
             "pb-[calc(max(env(safe-area-inset-bottom), 16px) - 16px)]": user,
           },
@@ -56,7 +56,7 @@ const ContentProvider: React.FC<ContentProviderProps> = ({ children }) => {
             <toast.ToastContainer
               stacked
               newestOnTop
-              theme={theme === "system" ? "light" : theme}
+              theme={resolvedTheme}
               autoClose={2500}
               draggablePercent={60}
               className="!mb-16 z-[51]"
@@ -65,14 +65,6 @@ const ContentProvider: React.FC<ContentProviderProps> = ({ children }) => {
               pauseOnHover={false}
             />
           </div>
-          {/* <Button
-            className="absolute top-0 right-0 p-4 z-[5555] bg-primary text-white"
-            onClick={() => {
-              axios.post("/api/migrate");
-            }}
-          >
-            Migrate
-          </Button> */}
           <div className="w-full h-full flex flex-col relative z-10 overflow-auto scrollbar-hide md:scrollbar-visible md:px-4">
             {user && <SettingsComponent />}
             {children}

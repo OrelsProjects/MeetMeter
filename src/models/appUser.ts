@@ -5,6 +5,7 @@ export default interface AppUser {
   photoURL?: string | null;
   settings: AppUserSettings;
   displayName?: string | null;
+  role?: string;
 }
 
 export interface AppUserMetadata {

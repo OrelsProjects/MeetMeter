@@ -1,14 +1,14 @@
 "use client";
 
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import useResponse from "@/lib/hooks/useResponse";
-import { selectEvents } from "../../../lib/features/events/eventsSlice";
-import { useAppSelector } from "../../../lib/hooks/redux";
-import { useEffect } from "react";
-import LoadingError from "../../../models/errors/LoadingError";
-import { Logger } from "../../../logger";
+import { selectEvents } from "@/lib/features/events/eventsSlice";
+import { useAppSelector } from "@/lib/hooks/redux";
+import { Logger } from "@/logger";
+import { Button } from "@/components/ui/button";
 import { RatingComponent } from "./rating";
-import { Button } from "../../../components/ui/button";
+import LoadingError from "@/models/errors/LoadingError";
 
 const ResponsePage = () => {
   const router = useRouter();
@@ -26,11 +26,11 @@ const ResponsePage = () => {
 
   return (
     userEventResponses && (
-      <div className="flex flex-col gap-4">
+      <div className="h-fit w-full grid grid-cols-[repeat(var(--responses-in-row-mobile),minmax(0,1fr))] md:grid-cols-[repeat(var(--responses-in-row),minmax(0,1fr))] gap-8 auto-rows-auto overflow-y-auto overflow-x-clip pb-2">
         {userEventResponses.map(response => (
           <div
             key={response.id}
-            className="w-full md:max-w-72 h-fit md:h-fit flex flex-col justify-center items-center gap-3 bg-card rounded-md p-2 hover:cursor-pointer"
+            className="w-full md:w-[23.5rem] h-60 shadow-md bg-card/70 dark:bg-card rounded-md flex flex-col justify-between items-center gap-1 p-3 relative hover:cursor-pointer"
             onClick={() => {
               router.push(`/responses/${response.responseEventId}`);
             }}

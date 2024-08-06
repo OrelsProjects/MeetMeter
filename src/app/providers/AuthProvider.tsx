@@ -31,6 +31,7 @@ export default function AuthProvider({
     email?: string | null;
     image?: string | null;
     userId?: string | null;
+    role?: string | null;
     meta: {
       referralCode?: string | null;
     };
@@ -41,6 +42,7 @@ export default function AuthProvider({
         email: user?.email || "",
         photoURL: user?.image || null,
         userId: user?.userId || "",
+        role: user?.role || "",
         settings: {
           showNotifications: true,
         },

@@ -29,11 +29,24 @@ export async function GET(req: NextRequest) {
     const getAllCalendarsUrl =
       "https://www.googleapis.com/calendar/v3/users/me/calendarList";
 
-    const responseCal = await axios.get<Calendar[]>(getAllCalendarsUrl, {
+    // const responseCal = await axios.get<Calendar[]>(getAllCalendarsUrl, {
+    //   headers: {
+    //     Authorization: `Bearer ${latestAccount.access_token}`,
+    //   },
+    // });
+
+    // get primary calendar
+    const colors = `https://www.googleapis.com/calendar/v3/colors`;
+    const primaryCalendarUrl = `https://www.googleapis.com/calendar/v3/users/me/calendarList/primary`;
+    const responsePrimary = await axios.get(primaryCalendarUrl, {
       headers: {
         Authorization: `Bearer ${latestAccount.access_token}`,
       },
     });
+
+    const calendarBackgroundColor = responsePrimary.data.backgroundColor;
+    const calendarForegroundColor = responsePrimary.data.foregroundColor;
+
     const now = moment.now();
     const startOfDay = moment(now).startOf("day").toISOString();
     const endOfDay = moment(now).endOf("day").toISOString();
@@ -43,7 +56,11 @@ export async function GET(req: NextRequest) {
         Authorization: `Bearer ${latestAccount.access_token}`,
       },
     });
-    return NextResponse.json(response.data, { status: 200 });
+
+    return NextResponse.json(
+      { ...response.data, calendarBackgroundColor, calendarForegroundColor },
+      { status: 200 },
+    );
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

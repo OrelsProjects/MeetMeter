@@ -2,34 +2,7 @@
 import React from "react";
 import { Skeleton } from "../../../components/ui/skeleton";
 import { cn } from "../../../lib/utils";
-
-const ratingMap = [
-  {
-    rating: 1,
-    text: "Terrible",
-    emoji: "😠",
-  },
-  {
-    rating: 2,
-    text: "Bad",
-    emoji: "🙄",
-  },
-  {
-    rating: 3,
-    text: "Okay",
-    emoji: "🧐",
-  },
-  {
-    rating: 4,
-    text: "Good",
-    emoji: "🙂",
-  },
-  {
-    rating: 5,
-    text: "Excellent",
-    emoji: "🥳",
-  },
-];
+import { ratingMap } from "./[responseId]/page";
 
 export const RatingComponent = ({
   selected,

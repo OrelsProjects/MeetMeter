@@ -128,6 +128,7 @@ export const getSession = async ({
 
   newSession.user = {
     ...newSession.user,
+    role: appUser?.role || "",
     userId: appUser?.id || "",
     meta: {
       referralCode: appUser?.meta?.referralCode || "",

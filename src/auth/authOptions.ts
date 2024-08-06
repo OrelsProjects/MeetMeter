@@ -1,5 +1,4 @@
 import { AuthOptions } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import AppleProvider from "next-auth/providers/apple";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
@@ -31,6 +30,21 @@ export const authOptions: AuthOptions = {
   callbacks: {
     session: getSession,
     signIn,
+    jwt: async ({ token }) => {
+      if (token) {
+        const userId = token.sub;
+        const user = await prisma.user.findUnique({
+          where: {
+            id: userId,
+          },
+          select: {
+            role: true,
+          },
+        });
+        return { ...token, role: user?.role };
+      }
+      return token;
+    },
   },
   session: {
     strategy: "jwt", // This is the default value

@@ -2,9 +2,8 @@ import React, { useEffect, useState } from "react";
 import { isMobile } from "../../../lib/utils/notificationUtils";
 import { cn } from "../../../lib/utils";
 import { IoShareOutline } from "react-icons/io5";
-import { IoMdClose } from "react-icons/io";
-import { Button } from "../../../components/ui/button";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import { IoCloseOutline } from "react-icons/io5";
 
 const setPopupShown = () => {
   localStorage.setItem("popupShown", "true");
@@ -16,48 +15,86 @@ const isPopupShown = () => {
 
 export default function HintDownloadAppIOS({
   className,
+  forceShow,
+  onClose,
 }: {
   className?: string;
+  forceShow?: boolean;
+  onClose?: () => void;
 }) {
   const [shouldShow, setShouldShow] = useState(false);
 
   useEffect(() => {
+    const android = isMobile.Android();
+    const blackberry = isMobile.BlackBerry();
+    const ios = isMobile.iOS();
+    const opera = isMobile.Opera();
+    const samsung = isMobile.Samsung();
+    const windows = isMobile.Windows();
+
+    console.log(
+      "android",
+      android,
+      "blackberry",
+      blackberry,
+      "ios",
+      ios,
+      "opera",
+      opera,
+      "samsung",
+      samsung,
+      "windows",
+      windows,
+    );
+
     if (!isMobile.iOS() || isPopupShown()) {
       setShouldShow(false);
+    } else {
+      setShouldShow(true);
     }
-    setShouldShow(true);
   }, []);
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: shouldShow ? 1 : 0 }}
-      exit={{ opacity: 0 }}
-      key="hintDownloadAppIOS"
-      className={cn(
-        "w-full h-fit flex justify-start items-center bg-gray-200 rounded-lg mb-2 p-2 shadow-md relative",
-        className,
+    <AnimatePresence>
+      {(shouldShow || forceShow) && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          key="hintDownloadAppIOS"
+          className={cn(
+            "w-full h-fit flex justify-start items-center bg-gray-200 rounded-lg mb-2 p-2 shadow-md absolute bottom-0",
+            className,
+          )}
+        >
+          <IoCloseOutline
+            className="text-blue-400 w-6 h-6 absolute top-2 right-3"
+            onClick={() => {
+              setPopupShown();
+              setShouldShow(false);
+              onClose?.();
+            }}
+          />
+          <p className="text-sm flex flex-row flex-wrap gap-1 font-extralight text-gray-700 text-start">
+            <p>
+              <span className="pt-1">
+                For <strong>best experience</strong>, install this app on your
+                iPhone:{" "}
+              </span>
+              <p>
+                <span className="font-medium flex flex-row">
+                  <span>Tap on</span>
+                  <IoShareOutline className="text-blue-400 w-6 h-6 pb-1" />
+                  <span className="font-extralight">and then </span>
+                  <span className="font-medium ml-1"> Add to homescreen</span>
+                </span>
+              </p>
+            </p>
+
+            <p></p>
+          </p>
+        </motion.div>
       )}
-    >
-      <p className="text-sm flex flex-row flex-wrap gap-1 font-extralight text-gray-700 text-start">
-        <span className="pt-1">
-          Install this app on your iPhone:{" "}
-          <span className="font-normal"> Tap on </span>
-        </span>
-        <IoShareOutline className="text-blue-400 w-6 h-6" />
-        <span>and then </span>
-        <span className="font-normal"> Add to homescreen</span>
-      </p>
-      <Button
-        className="absolute top-0 right-1 !p-0"
-        variant="ghost"
-        onClick={() => {
-          setPopupShown();
-          setShouldShow(false);
-        }}
-      >
-        <IoMdClose className="w-4 h-4" />
-      </Button>
-    </motion.div>
+    </AnimatePresence>
   );
 }

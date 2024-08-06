@@ -12,6 +12,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import { FaArrowLeftLong } from "react-icons/fa6";
 
 const Comments = ({
   value,
@@ -44,29 +45,24 @@ const Comments = ({
   );
 };
 
-const ratingMap = [
+export const ratingMap = [
   {
     rating: 1,
-    text: "Terrible",
-    emoji: "😠",
-  },
-  {
-    rating: 2,
     text: "Bad",
     emoji: "🙄",
   },
   {
-    rating: 3,
+    rating: 2,
     text: "Okay",
     emoji: "🧐",
   },
   {
-    rating: 4,
+    rating: 3,
     text: "Good",
     emoji: "🙂",
   },
   {
-    rating: 5,
+    rating: 4,
     text: "Excellent",
     emoji: "🥳",
   },
@@ -83,7 +79,7 @@ const Rating = ({
 }) => {
   return (
     <div className="w-full flex flex-row justify-between gap-2">
-      {Array.from({ length: 5 }).map((_, index) =>
+      {Array.from({ length: ratingMap.length }).map((_, index) =>
         loading ? (
           <Skeleton
             key={`rating-${index}-loading`}
@@ -191,6 +187,13 @@ const ResponsePage = ({ params }: { params: { responseId: string } }) => {
 
   return (
     <form onSubmit={formik.handleSubmit} className="flex flex-col gap-10">
+      <div
+        className="w-fit hover:bg-slate-400/40 hover:cursor-pointer rounded-xl p-2 flex flex-row gap-1 justify-center items-center"
+        onClick={() => router.push("/responses")}
+      >
+        <FaArrowLeftLong className="w-6 h-6" />
+        <span className="text-lg">Back</span>
+      </div>
       <div className="flex flex-col gap-1">
         <h1 className="text-2xl font-bold tracking-wide">
           <span>

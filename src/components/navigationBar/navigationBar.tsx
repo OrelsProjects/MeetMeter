@@ -1,10 +1,11 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { NavigationBarItem, BottomBarItems } from "./_consts";
 import { cn } from "../../lib/utils";
 import Link from "next/link";
+import { useAppSelector } from "../../lib/hooks/redux";
 
 interface NavigationBar {
   ref?: React.RefObject<HTMLDivElement>;
@@ -12,6 +13,7 @@ interface NavigationBar {
 }
 
 const NavigationBar: React.FC<NavigationBar> = ({ ...props }) => {
+  const { user } = useAppSelector(state => state.auth);
   const [items] = useState([...BottomBarItems]);
   const [activeItem, setActiveItem] = useState<NavigationBarItem | undefined>(
     items[0],
@@ -23,35 +25,37 @@ const NavigationBar: React.FC<NavigationBar> = ({ ...props }) => {
     setActiveItem(items.find(i => pathname.includes(i.href)));
   }, [pathname]);
 
+  const role = useMemo(() => user?.role, [user]);
+
   const isItemActive = (item: NavigationBarItem) =>
     item.href === activeItem?.href;
 
-  const Item = ({ item, id }: { item: NavigationBarItem; id: string }) => (
-    <Link
-      href={item.href}
-      className={cn(
-        "flex-1 flex items-center justify-center lg:justify-start lg:hover:bg-muted-foreground/20  lg:rounded-lg lg:p-4 cursor-pointer",
-        {
-          "lg:bg-muted-foreground/20": isItemActive(item),
-        },
-      )}
-      key={item.href}
-      // data-onboarding-id={`navigation-bar-item-${item.label}`}
-      data-onboarding-id={id}
-    >
-      <div className="flex flex-col lg:flex-row gap-2 justify-center items-center">
-        <span className="indicator">
-          {isItemActive(item) ? <item.iconActive /> : <item.icon />}
-        </span>
-        <span className="lg:hidden text-[0.7rem] leading-3 tracking-tight capitalize -mt-0.5 font-medium text-base-content/75">
-          {item.label}
-        </span>
-        <span className="hidden lg:inline tracking-tight uppercase font-semibold text-muted-foreground">
-          {item.label}
-        </span>
-      </div>
-    </Link>
-  );
+  const Item = ({ item, id }: { item: NavigationBarItem; id: string }) =>
+    (item.roleRequired ? item.roleRequired === role : true) && (
+      <Link
+        href={item.href}
+        className={cn(
+          "flex-1 flex items-center justify-center lg:justify-start lg:hover:bg-muted-foreground/20  lg:rounded-lg lg:p-4 cursor-pointer",
+          {
+            "lg:bg-muted-foreground/20": isItemActive(item),
+          },
+        )}
+        key={item.href}
+        data-onboarding-id={id}
+      >
+        <div className="flex flex-col lg:flex-row gap-2 justify-center items-center">
+          <span className="indicator">
+            {isItemActive(item) ? <item.iconActive /> : <item.icon />}
+          </span>
+          <span className="lg:hidden text-[0.7rem] leading-3 tracking-tight capitalize -mt-0.5 font-medium text-base-content/75">
+            {item.label}
+          </span>
+          <span className="hidden lg:inline tracking-tight uppercase font-semibold text-muted-foreground">
+            {item.label}
+          </span>
+        </div>
+      </Link>
+    );
 
   const SideNavigationBar = () => (
     <div

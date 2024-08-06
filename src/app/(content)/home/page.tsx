@@ -61,6 +61,8 @@ export default function Home() {
         {events?.items?.map(event => (
           <li key={event.id}>
             <EventComponent
+              defaultBackgroundColor={events.calendarBackgroundColor}
+              defaultForegroundColor={events.calendarForegroundColor}
               event={event}
               notify={{ calendarName: events.summary }}
             />
