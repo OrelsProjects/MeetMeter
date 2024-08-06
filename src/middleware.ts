@@ -36,6 +36,7 @@ export default withAuth(
     return NextResponse.next();
   },
   {
+    secret: process.env.SECRET,
     callbacks: {
       authorized: ({ token, req }) => {
         console.log("token", JSON.stringify(token));
