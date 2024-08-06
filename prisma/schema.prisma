@@ -134,7 +134,7 @@ model UserResponse {
   respondAt DateTime?
 
   responseEvent ResponseEvent @relation(fields: [responseEventId], references: [id], onDelete: Cascade)
-  user          User          @relation(fields: [userId], references: [id], onDelete: NoAction)
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, responseEventId])
   @@map("userResponse")
@@ -154,7 +154,7 @@ model ResponseEvent {
   calendarId String
   eventId    String
 
-  user         User           @relation(fields: [organizer], references: [id], onDelete: NoAction)
+  user         User           @relation(fields: [organizer], references: [id], onDelete: Cascade)
   userResponse UserResponse[]
 
   createdAt                  DateTime                     @default(now())
@@ -176,7 +176,7 @@ model ResponseEventNotifications {
   sentAt DateTime @default(now())
 
   responseEvent ResponseEvent @relation(fields: [responseEventId], references: [id], onDelete: Cascade)
-  user          User          @relation(fields: [sentBy], references: [id], onDelete: NoAction)
+  user          User          @relation(fields: [sentBy], references: [id], onDelete: Cascade)
 
   @@map("responseEventNotifications")
 }

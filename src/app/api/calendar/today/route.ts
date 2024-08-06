@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../../../../auth/authOptions";
+import { authOptions } from "@/auth/authOptions";
 import axios from "axios";
 import prisma from "../../_db/db";
 import moment from "moment";
+import { CalendarEvents } from "@/models/calendarEvents";
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -51,14 +52,27 @@ export async function GET(req: NextRequest) {
     const startOfDay = moment(now).startOf("day").toISOString();
     const endOfDay = moment(now).endOf("day").toISOString();
     const url = `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${startOfDay}&timeMax=${endOfDay}&orderBy=startTime&singleEvents=true`;
-    const response = await axios.get(url, {
+    const response = await axios.get<CalendarEvents>(url, {
       headers: {
         Authorization: `Bearer ${latestAccount.access_token}`,
       },
     });
 
+    const eventsWithAttendees = response.data.items.filter(
+      event => event.attendees?.length,
+    );
+
+    const allEvents = {
+      ...response.data,
+      items: eventsWithAttendees,
+    };
+
     return NextResponse.json(
-      { ...response.data, calendarBackgroundColor, calendarForegroundColor },
+      {
+        ...allEvents,
+        calendarBackgroundColor,
+        calendarForegroundColor,
+      },
       { status: 200 },
     );
   } catch (error: any) {

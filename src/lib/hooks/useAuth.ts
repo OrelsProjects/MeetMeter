@@ -119,8 +119,6 @@ const useAuth = () => {
       Logger.error("Error deleting user", { error });
       dispatch(setError("Failed to delete user"));
       throw error;
-    } finally {
-      window.location.href = "/";
     }
   }, []);
 

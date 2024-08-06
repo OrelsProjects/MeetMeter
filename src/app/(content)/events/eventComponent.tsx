@@ -6,6 +6,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import moment from "moment";
 import { cn } from "../../../lib/utils";
+import { Skeleton } from "../../../components/ui/skeleton";
 
 const colorMapping: Record<string, string> = {
   1: "bg-indigo-600 text-white", // Lavender: #7986CB
@@ -20,6 +21,17 @@ const colorMapping: Record<string, string> = {
   10: "bg-green-700 text-white", // Basil: #0B8043
   11: "bg-red-700 text-white", // Tomato: #D50000
 };
+
+export const LoadingEventComponent = () => (
+  <div className="w-full h-fit flex flex-row items-center gap-4">
+    <Skeleton
+      className={cn(
+        "w-80 h-28 flex flex-col gap-0.5 p-2 rounded-lg text-secondary-foreground",
+      )}
+    />
+    <Skeleton className="w-8 h-8" />
+  </div>
+);
 
 const EventComponent = ({
   event,
@@ -58,8 +70,8 @@ const EventComponent = ({
     return colorMapping[event.colorId]
       ? colorMapping[event.colorId]
       : defaultBackgroundColor
-      ? null
-      : "bg-secondary";
+        ? null
+        : "bg-secondary";
   }, [event.colorId]);
 
   const colorStyle = useMemo(() => {
@@ -70,7 +82,7 @@ const EventComponent = ({
         }
       : {};
   }, [colorClassname, defaultBackgroundColor, defaultForegroundColor]);
-  
+
   const TimeRange = useMemo(() => {
     const start = event.start.dateTime
       ? moment(event.start.dateTime).format("HH:mm")

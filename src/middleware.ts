@@ -48,7 +48,7 @@ export default withAuth(
 
 // match /register path and if it has params, also match
 export const config = {
-  matcher: ["/register/:path*", "/home/:path*", "/dashboard/:path*"], // Matches /register and any subpaths, as well as /home /dashboard
+  matcher: ["/register/:path*", "/events/:path*", "/dashboard/:path*"], // Matches /register and any subpaths, as well as /home /dashboard
 };
 
 // export { default } from "next-auth/middleware";

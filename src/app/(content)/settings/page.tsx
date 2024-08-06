@@ -54,7 +54,7 @@ const SettingsScreen: React.FC<SettingsProps> = () => {
     changeNotificationTimeout.current = setTimeout(async () => {
       changeNotificationTimeout.current = null;
       try {
-        await axios.patch("/api/user/settings", { showNotifications });
+        await axios.patch("api/user/settings", { showNotifications });
         if (showNotifications) {
           await initUserToken();
         }

@@ -5,6 +5,7 @@ import {
   PiRankingFill as ResponsesAction,
 } from "react-icons/pi";
 import { IoStatsChartOutline, IoStatsChart } from "react-icons/io5";
+import { BiCalendarEvent, BiSolidCalendarEvent } from "react-icons/bi";
 
 export interface NavigationBarItem {
   icon: ElementType;
@@ -23,13 +24,13 @@ export const BottomBarItems: NavigationBarItem[] = [
     iconActive: () => <HomeActive className={classNameActive} />,
     label: "Home",
     href: "/home",
-    roleRequired: "admin",
   },
   {
-    icon: () => <Responses className={className} />,
-    iconActive: () => <ResponsesAction className={classNameActive} />,
-    label: "Responses",
-    href: "/responses",
+    icon: () => <BiCalendarEvent className={className} />,
+    iconActive: () => <BiSolidCalendarEvent className={classNameActive} />,
+    label: "Events",
+    href: "/events",
+    roleRequired: "admin",
   },
   {
     icon: () => <IoStatsChartOutline className={className} />,

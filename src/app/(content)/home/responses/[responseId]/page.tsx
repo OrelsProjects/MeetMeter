@@ -120,7 +120,7 @@ const ResponsePage = ({ params }: { params: { responseId: string } }) => {
       rating: null,
     },
     validationSchema: Yup.object({
-      comments: Yup.string().required("Comments are required"),
+      comments: Yup.string(),
       rating: Yup.number()
         .required("Rating is required")
         .min(1, "Rating is required"),

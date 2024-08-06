@@ -2,7 +2,7 @@
 import React from "react";
 import { Skeleton } from "../../../components/ui/skeleton";
 import { cn } from "../../../lib/utils";
-import { ratingMap } from "./[responseId]/page";
+import { ratingMap } from "./responses/[responseId]/page";
 
 export const RatingComponent = ({
   selected,

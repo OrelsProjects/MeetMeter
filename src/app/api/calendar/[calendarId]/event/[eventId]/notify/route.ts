@@ -165,7 +165,7 @@ export async function POST(
         continue;
       }
 
-      const onClickNavigateTo = `${process.env.APP_BASE_URL}/responses/${responseEvent.id}`;
+      const onClickNavigateTo = `${process.env.APP_BASE_URL}/home/responses/${responseEvent.id}`;
 
       notificationPromises.push(
         sendNotification({
