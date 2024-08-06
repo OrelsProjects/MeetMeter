@@ -40,11 +40,13 @@ export default function EventStatisticsCard({
       ) : (
         <div className="h-full p-5 sm:p-4">
           <dl className="h-full flex flex-col justify-between">
-            <dt className="text-lg text-card-foreground line-clamp-2 flex flex-row justify-between gap-4">
-              <span className="font-semibold text-lg">{statistic?.event.summary}</span>
+            <dt className="w-full text-lg text-card-foreground line-clamp-2 flex flex-row justify-between gap-4">
+              <span className="font-semibold text-lg">
+                {statistic?.event.summary}
+              </span>
               <span className="font-medium text-xl">{statistic?.value}</span>
             </dt>
-            <dd className="mt-1 font-medium text-card-foreground flex flex-row justify-between gap-4">
+            <dd className="w-full mt-1 font-medium text-card-foreground flex flex-row justify-between gap-4">
               <TimeRange />
               <span className="text-sm font-light">{statistic?.infoText}</span>
             </dd>
