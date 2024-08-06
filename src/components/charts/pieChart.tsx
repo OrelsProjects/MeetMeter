@@ -28,8 +28,9 @@ export default function CustomPieChart({
     pie: {
       style: {
         labels: {
-          fill: resolvedTheme === "dark" ? "white" : "black",
+          fill: resolvedTheme === "dark" ? "white" : "white",
           fontSize: 30,
+          fontWeight: 100,
         },
       },
     },

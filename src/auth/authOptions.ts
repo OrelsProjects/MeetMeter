@@ -31,7 +31,6 @@ export const authOptions: AuthOptions = {
     session: getSession,
     signIn,
     jwt: async ({ token }) => {
-      console.log("JWT callback", token);
       if (token) {
         const userId = token.sub;
         const user = await prisma.user.findUnique({
@@ -42,7 +41,6 @@ export const authOptions: AuthOptions = {
             role: true,
           },
         });
-        console.log("user", user);
         return { ...token, role: user?.role };
       }
       return token;

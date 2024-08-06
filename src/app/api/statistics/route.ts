@@ -2,7 +2,11 @@ import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { authOptions } from "@/auth/authOptions";
 import prisma from "@/app/api/_db/db";
-import { Statistics, UserResponseStatistics } from "@/models/statistics";
+import {
+  Statistics,
+  StatisticsWithEvent,
+  UserResponseStatistics,
+} from "@/models/statistics";
 import { UserResponse } from "@prisma/client";
 import { UserResponseWithEvent } from "../../../models/userResponse";
 
@@ -95,6 +99,62 @@ export async function GET(req: NextRequest) {
       }
     });
 
+    /**
+       * export type StatisticsWithEvent = StatisticsBase & {
+  infoText: string;
+} & { event: ResponseEvent };
+ export interface StatisticsBase {
+  value: number | string;
+  change?: number;
+}
+
+
+       */
+    const worstMeetings: StatisticsWithEvent[] = Object.entries(
+      eventIdToUserResponses,
+    )
+      .map(([eventId, responses]) => {
+        const positiveResponses = responses.filter(
+          response => (response.rating || 0) >= 3,
+        ).length;
+        const totalResponses = responses.length;
+        const percentage = (positiveResponses / totalResponses) * 100;
+        return {
+          value: setOneDecimal(percentage),
+          infoText: `${positiveResponses}/${totalResponses} found it productive`,
+          event: responses[0].responseEvent,
+        };
+      })
+      .sort((a, b) => a.value - b.value)
+      .map(meeting => ({
+        ...meeting,
+        value: `${meeting.value}%`,
+      }))
+      .slice(0, 2);
+
+    const bestMeetings: StatisticsWithEvent[] = Object.entries(
+      eventIdToUserResponses,
+    )
+      .map(([eventId, responses]) => {
+        const positiveResponses = responses.filter(
+          response => (response.rating || 0) >= 3,
+        ).length;
+        const totalResponses = responses.length;
+        const percentage = (positiveResponses / totalResponses) * 100;
+
+        return {
+          value: percentage,
+          infoText: `${positiveResponses}/${totalResponses} found it productive`,
+          event: responses[0].responseEvent,
+        };
+      })
+      .sort((a, b) => b.value - a.value)
+      .map(meeting => ({
+        ...meeting,
+        value: `${meeting.value}%`,
+      }))
+      .slice(0, 2);
+
     const statistics: Statistics = {
       totalMeetings: { value: setOneDecimal(totalMeetings) },
       totalMeetingsTime: {
@@ -107,6 +167,8 @@ export async function GET(req: NextRequest) {
       },
       estimatedLoss: { value: "$0" },
       responseStatistics,
+      bestMeetings,
+      worstMeetings,
     };
 
     return NextResponse.json(statistics, { status: 200 });

@@ -1,5 +1,6 @@
 import React from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "../../../lib/utils";
 
 export default function StatisticsCard({
   title,
@@ -7,15 +8,22 @@ export default function StatisticsCard({
   units,
   change,
   loading,
+  className,
 }: {
   title: string;
   value: number | string;
   units?: string;
   change?: number;
   loading?: boolean;
+  className?: string;
 }) {
   return (
-    <div className="h-32 w-52 overflow-hidden rounded-lg bg-card">
+    <div
+      className={cn(
+        "h-32 w-full  overflow-hidden rounded-lg bg-card",
+        className,
+      )}
+    >
       {loading ? (
         <Skeleton className="w-full h-full" />
       ) : (

@@ -39,7 +39,6 @@ export default withAuth(
     secret: process.env.NEXTAUTH_SECRET,
     callbacks: {
       authorized: ({ token, req }) => {
-        console.log("token", JSON.stringify(token));
         const url = req.nextUrl.pathname;
         if (url.includes("/events") || url.includes("/dashboard")) {
           return token?.role === "admin";

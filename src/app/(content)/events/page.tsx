@@ -23,29 +23,19 @@ export default function Home() {
 
   const getTodaysEvents = async () => {
     setLoading(true);
-    // const toastId = toast.loading("Getting today's events...");
     try {
       const { data } = await axios.get<CalendarEvents>("api/calendar/today");
       dispatch(setEvents(data));
-      // toast.update(toastId, {
-      //   render: "Got today's events",
-      //   type: "success",
-      //   isLoading: false,
-      //   autoClose: 2000,
-      // });
-
       setEvents(data);
     } catch (error: any) {
       toast.error(error.message);
     } finally {
       setLoading(false);
-      // toast.dismiss(toastId);
     }
   };
 
   useEffect(() => {
     requestNotificationsPermission(true)
-      // .then(() => toast.success("Notifications enabled"))
       .catch(() => toast.error("Notifications not enabled"));
 
     getTodaysEvents();

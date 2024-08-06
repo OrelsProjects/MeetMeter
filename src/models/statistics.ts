@@ -1,4 +1,9 @@
+import { ResponseEvent } from "@prisma/client";
+
 export type Value = StatisticsBase & { units: string };
+export type StatisticsWithEvent = StatisticsBase & {
+  infoText: string;
+} & { event: ResponseEvent };
 
 export interface StatisticsBase {
   value: number | string;
@@ -16,4 +21,6 @@ export interface Statistics {
   averageMeetingsTime: Value;
   estimatedLoss: StatisticsBase;
   responseStatistics: UserResponseStatistics;
+  bestMeetings?: StatisticsWithEvent[];
+  worstMeetings?: StatisticsWithEvent[];
 }
