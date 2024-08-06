@@ -16,8 +16,6 @@ export default withAuth(
   function middleware(req: NextRequest) {
     const { referralCode } = getReferralOptions(req);
 
-    const url = req.nextUrl.pathname;
-
     if (referralCode) {
       const response = NextResponse.next();
 
@@ -39,8 +37,12 @@ export default withAuth(
   },
   {
     callbacks: {
-      authorized: ({ token }) => {
-        return token?.role === "admin";
+      authorized: ({ token, req }) => {
+        const url = req.nextUrl.pathname;
+        if (url.includes("/events") || url.includes("/dashboard")) {
+          return token?.role === "admin";
+        }
+        return true;
       },
     },
   },
