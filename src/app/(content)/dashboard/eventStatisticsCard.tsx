@@ -32,7 +32,7 @@ export default function EventStatisticsCard({
     <div
       className={cn(
         "h-[7.5rem] w-full  overflow-hidden rounded-lg bg-card",
-        className,
+        className, 
       )}
     >
       {loading ? (
