@@ -7,6 +7,7 @@ import CustomPieChart, {
 } from "../../../components/charts/pieChart";
 import { Statistics } from "../../../models/statistics";
 import StatisticsCard from "./statisticsCard";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function DashboardPage() {
   const [loading, setLoading] = React.useState(false);
@@ -30,6 +31,12 @@ export default function DashboardPage() {
   }, []);
 
   const formattedData: PieChartData[] = useMemo(() => {
+    if (loading) {
+      return Array.from({ length: 2 }).map(() => ({
+        label: "",
+        value: 0,
+      }));
+    }
     const responseStatistics = data?.responseStatistics;
     if (!responseStatistics) return [];
     return [
@@ -42,15 +49,15 @@ export default function DashboardPage() {
         value: responseStatistics.bad,
       },
     ];
-  }, [data]);
+  }, [data, loading]);
 
   return (
     <div className="flex flex-col justify-center items-center">
-      <div className="w-full bg-foreground/5 flex flex-col gap-10 p-4 rounded-lg">
+      <div className="w-full bg-foreground/5 flex flex-col gap-16 p-4 rounded-lg">
         <h1 className="self-center text-3xl font-semibold">
-          Your team's weekly meetings summary
+          Your team&apos;s weekly meetings summary
         </h1>
-        <div className="w-full flex flex-row justify-between">
+        <div className="w-full flex flex-col-reverse items-center md:items-start md:flex-row gap-10 md:gap-0 justify-between">
           <div className="w-fit rounded-lg grid grid-cols-[repeat(var(--responses-in-row-mobile),minmax(0,1fr))] md:grid-cols-[repeat(var(--responses-in-row),minmax(0,1fr))] gap-4">
             <StatisticsCard
               title="Total Meetings"
@@ -80,20 +87,31 @@ export default function DashboardPage() {
           </div>
           <div className="h-56 w-fit flex flex-col">
             <div className="w-full h-full flex flex-col gap-0 items-center justify-center">
-              <div className="w-fit h-fit flex flex-row gap-4">
+              <div className="w-fit h-fit flex flex-row gap-4 mt-4">
                 {formattedData
                   .map((it, index) => (
                     <div
-                      key={it.label}
+                      key={`pie-chart-legend-${index}`}
                       className="flex flex-row gap-1 items-center"
                     >
-                      <div
-                        className="w-4 h-4 rounded-full"
-                        style={{
-                          backgroundColor: index === 0 ? "#3b82f6" : "#f7146a",
-                        }}
-                      />
-                      <span>{it.label}</span>
+                      <div className="w-4 h-4 rounded-full">
+                        {loading ? (
+                          <Skeleton className="w-full h-full rounded-full" />
+                        ) : (
+                          <div
+                            className="w-full h-full rounded-full"
+                            style={{
+                              backgroundColor:
+                                index === 0 ? "#3b82f6" : "#f7146a",
+                            }}
+                          />
+                        )}
+                      </div>
+                      {loading ? (
+                        <Skeleton className="w-24 h-4" />
+                      ) : (
+                        <span>{it.label}</span>
+                      )}
                     </div>
                   ))
                   .reverse()}
@@ -101,6 +119,7 @@ export default function DashboardPage() {
               <CustomPieChart
                 data={formattedData}
                 colorScale={["#3b82f6", "#f7146a"]}
+                loading={loading}
               />
             </div>
           </div>

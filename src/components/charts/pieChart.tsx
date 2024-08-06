@@ -6,6 +6,7 @@ import {
   VictoryPie,
   VictoryThemeDefinition,
 } from "victory";
+import { Skeleton } from "../ui/skeleton";
 
 export interface PieChartData {
   label: string;
@@ -15,9 +16,11 @@ export interface PieChartData {
 export default function CustomPieChart({
   data,
   colorScale,
+  loading,
 }: {
   data: PieChartData[];
   colorScale?: string[];
+  loading?: boolean;
 }) {
   const { resolvedTheme } = useTheme();
 
@@ -26,7 +29,7 @@ export default function CustomPieChart({
       style: {
         labels: {
           fill: resolvedTheme === "dark" ? "white" : "black",
-          fontSize: 42,
+          fontSize: 30,
         },
       },
     },
@@ -37,17 +40,25 @@ export default function CustomPieChart({
     y: d.value,
   }));
 
-  return (
+  const Label = (value: number) => {
+    // Calculate the percentage of the total
+    const percentage = (
+      (value / formattedData.reduce((a, b) => a + b.y, 0)) *
+      100
+    ).toFixed(0);
+    return `${percentage}%`;
+  };
+
+  return loading ? (
+    <Skeleton className="h-full rounded-full aspect-square" />
+  ) : (
     <VictoryPie
       data={formattedData}
-      // color of title
       theme={chartTheme}
       colorScale={colorScale}
-      animate={{
-        duration: 2000,
-      }}
-      labelComponent={<></>}
-      innerRadius={50}
+      labels={({ datum }) => Label(datum.y)}
+      labelRadius={({ innerRadius }) => (parseInt(`${innerRadius}`) || 0) + 20}
+      innerRadius={100}
     />
   );
 }

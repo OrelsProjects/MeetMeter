@@ -20,6 +20,9 @@ export async function GET(req: NextRequest) {
         responseEvent: true,
       },
       where: {
+        respondAt: {
+          not: null,
+        },
         responseEvent: {
           organizer: session.user.userId,
           end: {

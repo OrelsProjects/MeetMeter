@@ -2,7 +2,7 @@
 import React from "react";
 import { Skeleton } from "../../../components/ui/skeleton";
 import { cn } from "../../../lib/utils";
-import { ratingMap } from "./responses/[responseId]/page";
+import { ratingMap } from "../responses/[responseId]/consts";
 
 export const RatingComponent = ({
   selected,
@@ -30,7 +30,7 @@ export const RatingComponent = ({
     )}
     onClick={() => onChange?.(value)}
   >
-    <div className="text-lg md:text-2xl">{ratingMap[value].emoji}</div>
+    <div className="text-lg md:text-4xl">{ratingMap[value].emoji}</div>
     {showText && (
       <div className="text-xs md:text-sm">{ratingMap[value].text}</div>
     )}

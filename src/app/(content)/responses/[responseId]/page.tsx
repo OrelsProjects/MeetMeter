@@ -13,6 +13,7 @@ import * as Yup from "yup";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FaArrowLeftLong } from "react-icons/fa6";
+import { ratingMap } from "./consts";
 
 const Comments = ({
   value,
@@ -44,29 +45,6 @@ const Comments = ({
     </div>
   );
 };
-
-export const ratingMap = [
-  {
-    rating: 1,
-    text: "Bad",
-    emoji: "🙄",
-  },
-  {
-    rating: 2,
-    text: "Okay",
-    emoji: "🧐",
-  },
-  {
-    rating: 3,
-    text: "Good",
-    emoji: "🙂",
-  },
-  {
-    rating: 4,
-    text: "Excellent",
-    emoji: "🥳",
-  },
-];
 
 const Rating = ({
   value,
@@ -136,7 +114,7 @@ const ResponsePage = ({ params }: { params: { responseId: string } }) => {
           pending: "Sending response...",
           success: {
             render() {
-              router.push("/responses");
+              router.push("/home");
               return "Response sent!";
             },
           },
@@ -189,7 +167,7 @@ const ResponsePage = ({ params }: { params: { responseId: string } }) => {
     <form onSubmit={formik.handleSubmit} className="flex flex-col gap-10">
       <div
         className="w-fit hover:bg-slate-400/40 hover:cursor-pointer rounded-xl p-2 flex flex-row gap-1 justify-center items-center"
-        onClick={() => router.push("/responses")}
+        onClick={() => router.push("/home")}
       >
         <FaArrowLeftLong className="w-6 h-6" />
         <span className="text-lg">Back</span>

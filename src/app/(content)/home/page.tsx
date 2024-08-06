@@ -37,10 +37,10 @@ const ResponsePage = () => {
                 key={response.id}
                 className="w-full md:w-[23.5rem] h-60 shadow-md bg-card/70 dark:bg-card rounded-md flex flex-col justify-between items-center gap-1 p-3 relative hover:cursor-pointer"
                 onClick={() => {
-                  router.push(`home/responses/${response.responseEventId}`);
+                  router.push(`/responses/${response.responseEventId}`);
                 }}
               >
-                <h1 className="font-semibold">
+                <h1 className="font-semibold text-lg md:text-xl">
                   {response.responseEvent.summary}
                 </h1>
                 {response.respondAt ? (
