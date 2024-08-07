@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { isMobile } from "../../../lib/utils/notificationUtils";
+import {
+  canUseNotifications,
+  isMobile,
+} from "../../../lib/utils/notificationUtils";
 import { cn } from "../../../lib/utils";
 import { IoShareOutline } from "react-icons/io5";
 import { AnimatePresence, motion } from "framer-motion";
@@ -11,6 +14,11 @@ const setPopupShown = () => {
 
 const isPopupShown = () => {
   return localStorage.getItem("popupShown") === "true";
+};
+
+const isAppInstalledIos = () => {
+  // if cant use notifications, it means the app was opened in a browser. Otherwise, it was added to homescreen
+  return canUseNotifications();
 };
 
 export default function HintDownloadAppIOS({
@@ -47,10 +55,10 @@ export default function HintDownloadAppIOS({
       windows,
     );
 
-    // if (!isMobile.iOS() || isPopupShown()) {
+    // if (!isMobile.iOS() || isPopupShown() || isAppInstalledIos()) {
     //   setShouldShow(false);
     // } else {
-      setShouldShow(true);
+    setShouldShow(true);
     // }
   }, []);
 
@@ -78,11 +86,11 @@ export default function HintDownloadAppIOS({
           <p className="text-sm flex flex-row flex-wrap gap-1 font-extralight text-gray-700 text-start">
             <p>
               <span className="pt-1">
-                For <strong>best experience</strong>, install this app on your
-                iPhone:{" "}
+                For <strong>best experience</strong>, install this app on <br />
+                your iPhone:{" "}
               </span>
               <p>
-                <span className="font-medium flex flex-row">
+                <span className="font-medium flex flex-row mt-1">
                   <span>Tap on</span>
                   <IoShareOutline className="text-blue-400 w-6 h-6 pb-1" />
                   <span className="font-extralight">and then </span>
