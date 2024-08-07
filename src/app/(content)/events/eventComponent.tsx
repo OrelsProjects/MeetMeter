@@ -17,7 +17,12 @@ import {
   TooltipProvider,
   TooltipContent,
   TooltipTrigger,
-} from "../../../components/ui/tooltip";
+} from "@/components/ui/tooltip";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
 
 const colorMapping: Record<string, string> = {
   1: "bg-indigo-400 text-white",
@@ -120,46 +125,69 @@ const EventComponent = ({
     [event.canNotifyAt],
   );
 
-  return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger className="w-full cursor-default">
-          <div className="w-full h-fit flex flex-row items-center gap-4">
-            <div
-              className={cn(
-                "w-80 h-28 flex flex-col gap-0.5 p-2 rounded-lg text-secondary-foreground transition-all duration-500",
-                colorClassname,
-                { grayscale: disabled },
-              )}
-              style={colorStyle}
-            >
-              <h1 className="font-semibold line-clamp-2">{event.summary}</h1>
-              <p className="font-light text-sm">{TimeRange}</p>
-            </div>
-            {notify && (
-              <Button
-                variant="ghost"
-                className="px-1"
-                onClick={notifyUsers}
-                disabled={disabled}
-              > 
-                <IoMdNotifications className="h-8 w-8 fill-primary" />
-              </Button>
-            )}
-          </div>
-        </TooltipTrigger>
-        {event.canNotifyAt !== "now" && (
-          <TooltipContent className="bg-gray-400/50 dark:bg-gray-400/20 text-white">
-            <p>
-              You can notify attendees again at:{" "}
-              <span className="text-primary">
-                {moment(event.canNotifyAt).format("HH:mm")}
-              </span>
-            </p>
-          </TooltipContent>
+  const Content = () => (
+    <div className="w-full h-fit flex flex-row items-center gap-4">
+      <div
+        className={cn(
+          "w-80 h-28 flex flex-col gap-0.5 p-2 rounded-lg text-secondary-foreground transition-all duration-500",
+          colorClassname,
+          { "grayscale opacity-70": disabled },
         )}
-      </Tooltip>
-    </TooltipProvider>
+        style={colorStyle}
+      >
+        <h1 className="font-semibold line-clamp-2">{event.summary}</h1>
+        <p className="font-light text-sm">{TimeRange}</p>
+      </div>
+      {notify && (
+        <Button
+          variant="ghost"
+          className="px-1"
+          onClick={notifyUsers}
+          disabled={disabled}
+        >
+          <IoMdNotifications className="h-8 w-8 fill-primary" />
+        </Button>
+      )}
+    </div>
+  );
+
+  const TooltipText = () => (
+    <p>
+      You can notify attendees again at:{" "}
+      <span className="text-primary">
+        {moment(event.canNotifyAt).format("HH:mm")}
+      </span>
+    </p>
+  );
+
+  return (
+    <div className="w-full h-full">
+      <Popover>
+        <PopoverTrigger className="w-full flex md:hidden">
+          <Content />
+        </PopoverTrigger>
+
+        {event.canNotifyAt !== "now" && (
+          <PopoverContent 
+          side="top"
+          >
+            <TooltipText /> 
+          </PopoverContent>
+        )}
+      </Popover>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger className="w-full cursor-default hidden md:flex">
+            <Content />
+          </TooltipTrigger>
+          {event.canNotifyAt !== "now" && (
+            <TooltipContent>
+              <TooltipText />
+            </TooltipContent>
+          )}
+        </Tooltip>
+      </TooltipProvider>
+    </div>
   );
 };
 
