@@ -29,6 +29,12 @@ export const isMobile = {
       navigator.userAgent.match(/WPDesktop/i)
     );
   },
+  Safari: function () {
+    return (
+      navigator.userAgent.match(/Safari/i) &&
+      navigator.userAgent.match(/Version/i)
+    );
+  },
 };
 
 export const isMobilePhone = () =>

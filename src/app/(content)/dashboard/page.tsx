@@ -173,16 +173,18 @@ export default function DashboardPage() {
   );
 
   return (
-    <div className="flex flex-col justify-center items-center gap-10">
+    <div className="h-full w-full flex flex-col justify-center items-center gap-6 overflow-clip">
       <h1 className="self-center text-3xl font-semibold">
         Your team&apos;s weekly meetings summary
       </h1>
-      <SectionContainer>
-        <UpperSection />
-      </SectionContainer>
-      <SectionContainer className="flex-row">
-        <LowerSection />
-      </SectionContainer>
+      <div className="w-full h-full flex flex-col gap-4 overflow-auto">
+        <SectionContainer>
+          <UpperSection />
+        </SectionContainer>
+        <SectionContainer className="flex-row">
+          <LowerSection />
+        </SectionContainer>
+      </div>
     </div>
   );
 }

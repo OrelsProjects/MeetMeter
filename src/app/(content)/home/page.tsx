@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { RatingComponent } from "./rating";
 import LoadingError from "@/models/errors/LoadingError";
 import { Skeleton } from "../../../components/ui/skeleton";
+import HintDownloadAppIOS from "./hintDownloadAppIOS";
 
 const ResponsePage = () => {
   const router = useRouter();
@@ -32,34 +33,46 @@ const ResponsePage = () => {
           ? Array.from({ length: 4 }).map((_, index) => (
               <Skeleton className="w-full md:w-[23.5rem] h-60" key={index} />
             ))
-          : userEventResponses.map(response => (
-              <div
-                key={response.id}
-                className="w-full md:w-[23.5rem] h-60 shadow-md bg-card/70 dark:bg-card rounded-md flex flex-col justify-between items-center gap-1 p-3 relative hover:cursor-pointer"
-                onClick={() => {
-                  router.push(`/responses/${response.responseEventId}`);
-                }}
-              >
-                <h1 className="font-semibold text-lg md:text-xl">
-                  {response.responseEvent.summary}
-                </h1>
-                {response.respondAt ? (
-                  response.rating && (
-                    <>
-                      <RatingComponent
-                        value={response.rating - 1}
-                        selected
-                        className="shadow-none self-center border-none p-0 !h-fit"
-                        showText={false}
-                      />
-                      <p>{response.comments}</p>
-                    </>
-                  )
-                ) : (
-                  <Button>Rate event</Button>
-                )}
-              </div>
-            ))}
+          : [...userEventResponses]
+              // sort the ones without respondAt to the top
+              .sort((a, b) => {
+                if (!a.respondAt) {
+                  return -1;
+                }
+                if (!b.respondAt) {
+                  return 1;
+                }
+                return 0;
+              })
+              .map(response => (
+                <div
+                  key={response.id}
+                  className="w-full md:w-[23.5rem] h-60 shadow-md bg-card/70 dark:bg-card rounded-md flex flex-col justify-between items-center gap-1 p-3 relative hover:cursor-pointer"
+                  onClick={() => {
+                    router.push(`/responses/${response.responseEventId}`);
+                  }}
+                >
+                  <h1 className="font-semibold text-lg md:text-xl">
+                    {response.responseEvent.summary}
+                  </h1>
+                  {response.respondAt ? (
+                    response.rating && (
+                      <>
+                        <RatingComponent
+                          value={response.rating - 1}
+                          selected
+                          className="shadow-none self-center border-none p-0 !h-fit"
+                          showText={false}
+                        />
+                        <p>{response.comments}</p>
+                      </>
+                    )
+                  ) : (
+                    <Button>Rate event</Button>
+                  )}
+                </div>
+              ))}
+        <HintDownloadAppIOS className="self-center" />
       </div>
     )
   );

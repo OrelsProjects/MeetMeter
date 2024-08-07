@@ -12,7 +12,6 @@ import {
 } from "../../../lib/features/events/eventsSlice";
 import EventComponent, { LoadingEventComponent } from "./eventComponent";
 import useNotification from "../../../lib/hooks/useNotification";
-import HintDownloadAppIOS from "./hintDownloadAppIOS";
 
 export default function Home() {
   const dispatch = useAppDispatch();
@@ -64,7 +63,6 @@ export default function Home() {
               </li>
             ))}
       </ul>
-      <HintDownloadAppIOS className="self-center" />
     </div>
   );
 }

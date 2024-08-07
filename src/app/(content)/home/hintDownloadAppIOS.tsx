@@ -47,11 +47,11 @@ export default function HintDownloadAppIOS({
       windows,
     );
 
-    if (!isMobile.iOS() || isPopupShown()) {
-      setShouldShow(false);
-    } else {
+    // if (!isMobile.iOS() || isPopupShown()) {
+    //   setShouldShow(false);
+    // } else {
       setShouldShow(true);
-    }
+    // }
   }, []);
 
   return (
