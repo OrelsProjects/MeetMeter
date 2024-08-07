@@ -84,13 +84,12 @@ export default function AuthProvider({
       if (
         pathname.includes("login") ||
         pathname.includes("register") ||
-        pathname.includes("/") ||
-        pathname.includes("/home")
+        pathname === "/"
       ) {
         router.push("/home");
       }
     } else {
-      if (!pathname.includes("login") && !pathname.includes("register")) {
+      if (!pathname.includes("/login") && !pathname.includes("/register")) {
         router.push("/");
       }
     }
