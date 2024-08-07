@@ -123,7 +123,7 @@ const EventComponent = ({
   return (
     <TooltipProvider>
       <Tooltip>
-        <TooltipTrigger className="cursor-default">
+        <TooltipTrigger className="w-full cursor-default">
           <div className="w-full h-fit flex flex-row items-center gap-4">
             <div
               className={cn(
