@@ -35,7 +35,6 @@ export async function refreshAccessToken(refreshToken: string) {
   if (!response.ok) {
     throw refreshedTokens;
   }
-
   return {
     accessToken: refreshedTokens.access_token,
     accessTokenExpires: Date.now() + refreshedTokens.expires_in * 1000,
@@ -43,14 +42,15 @@ export async function refreshAccessToken(refreshToken: string) {
   };
 }
 
-async function verifyToken(account: Account) {
+export async function verifyToken(account: Account, force?: boolean) {
   if (!account.expires_at || !account.refresh_token) {
     throw new Error("Login required");
   }
+  await refreshAccessToken(account.refresh_token);
   const now = Date.now() / 1000;
   const expireAtMilliseconds = new Date(account.expires_at).getTime();
 
-  if (now > expireAtMilliseconds) {
+  if (now > expireAtMilliseconds || force) {
     const refreshToken = account.refresh_token;
     const newToken = await refreshAccessToken(refreshToken);
     const expiresAtString = (

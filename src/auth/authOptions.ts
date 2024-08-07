@@ -2,7 +2,7 @@ import { AuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import AppleProvider from "next-auth/providers/apple";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { getSession, signIn } from "./authUtils";
+import { getSession, signIn, verifyToken } from "./authUtils";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -30,7 +30,33 @@ export const authOptions: AuthOptions = {
   callbacks: {
     session: getSession,
     signIn,
-    jwt: async ({ token }) => {
+    jwt: async ({ token, account }) => {
+      if (account?.refresh_token) {
+        const accountFromDb = await prisma.account.findFirst({
+          where: {
+            userId: token.sub,
+          },
+        });
+        if (accountFromDb) {
+          if (accountFromDb.refresh_token !== account.refresh_token) {
+            await prisma.account.update({
+              where: {
+                id: accountFromDb.id,
+              },
+              data: {
+                refresh_token: account.refresh_token,
+              },
+            });
+          }
+          await verifyToken(
+            {
+              ...accountFromDb,
+              refresh_token: account.refresh_token,
+            },
+            true,
+          );
+        }
+      }
       if (token) {
         const userId = token.sub;
         const user = await prisma.user.findUnique({
