@@ -99,6 +99,7 @@ export async function GET(
       { status: 200 },
     );
   } catch (error: any) {
+    loggerServer.error("Error getting events", session.user.userId, error);
     console.log("Error getting events", JSON.stringify(error));
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
