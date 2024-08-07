@@ -31,9 +31,8 @@ export default function useNotification() {
   async function requestNotificationsPermission(
     initToken?: boolean,
   ): Promise<boolean> {
-    debugger;
     if (!canUseNotifications()) {
-      toast.error("Notifications are not supported on this device");
+      Logger.error("Notifications are not supported");
     }
     if (isPermissionGranted()) {
       // toast.info("Notifications are already enabled");

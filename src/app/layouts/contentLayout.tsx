@@ -13,6 +13,7 @@ import ContentProvider from "../providers/ContentProvider";
 import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 import { toast } from "react-toastify";
 import useNotification from "../../lib/hooks/useNotification";
+import { Logger } from "../../logger";
 
 interface RootLayoutProps {
   children: React.ReactNode;
@@ -23,7 +24,7 @@ export default function ContentLayout({ children }: RootLayoutProps) {
 
   useEffect(() => {
     requestNotificationsPermission(true).catch(() =>
-      toast.error("Notifications not enabled"),
+      Logger.error("Failed to request notifications permission"),
     );
   }, []);
   return (
