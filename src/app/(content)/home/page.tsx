@@ -11,6 +11,7 @@ import { RatingComponent } from "./rating";
 import LoadingError from "@/models/errors/LoadingError";
 import { Skeleton } from "../../../components/ui/skeleton";
 import HintDownloadAppIOS from "./hintDownloadAppIOS";
+import { IoMdNotifications } from "react-icons/io";
 
 const ResponsePage = () => {
   const router = useRouter();
@@ -25,6 +26,20 @@ const ResponsePage = () => {
       Logger.error(error);
     });
   }, []);
+
+  if (!loadingFetch && userEventResponses.length === 0) {
+    return (
+      <div className="h-full w-full flex flex-col items-center justify-center gap-2">
+        <p className="text-lg font-semibold text-center">
+          You have not attended any events yet.
+        </p>
+        <div className="flex flex-row gap-0 justify-center items-center font-light">
+          <p>Or ask your event organizer to ring the bell</p>
+          <IoMdNotifications className="h-7 w-7 fill-primary" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     userEventResponses && (

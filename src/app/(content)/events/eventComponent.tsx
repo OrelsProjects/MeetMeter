@@ -168,20 +168,18 @@ const EventComponent = ({
         </PopoverTrigger>
 
         {event.canNotifyAt !== "now" && (
-          <PopoverContent 
-          side="top"
-          >
-            <TooltipText /> 
+          <PopoverContent side="top">
+            <TooltipText />
           </PopoverContent>
         )}
       </Popover>
       <TooltipProvider>
         <Tooltip>
-          <TooltipTrigger className="w-full cursor-default hidden md:flex">
+          <TooltipTrigger className="cursor-default hidden md:flex">
             <Content />
           </TooltipTrigger>
           {event.canNotifyAt !== "now" && (
-            <TooltipContent>
+            <TooltipContent className="bg-card text-card-foreground shadow dark:shadow-none">
               <TooltipText />
             </TooltipContent>
           )}

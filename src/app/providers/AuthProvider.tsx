@@ -84,8 +84,8 @@ export default function AuthProvider({
       if (
         pathname.includes("login") ||
         pathname.includes("register") ||
-        pathname === "/" ||
-        pathname === "/home"
+        pathname.includes("/") ||
+        pathname.includes("/home")
       ) {
         router.push("/home");
       }
