@@ -10,8 +10,8 @@ interface Logger {
 }
 
 const httpTransportOptions = {
-  host: process.env.NEXT_PUBLIC_DD_HOST,
-  path: process.env.NEXT_PUBLIC_DD_PATH,
+  host: process.env.DD_HOST,
+  path: process.env.DD_PATH,
   ssl: true,
 };
 
