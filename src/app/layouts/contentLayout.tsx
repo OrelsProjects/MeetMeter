@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import "../../../firebase.config";
 import type { Viewport } from "next";
 
@@ -11,12 +11,21 @@ import AnimationProvider from "../providers/AnimationProvider";
 import HeightProvider from "../providers/HeightProvider";
 import ContentProvider from "../providers/ContentProvider";
 import { PayPalScriptProvider } from "@paypal/react-paypal-js";
+import { toast } from "react-toastify";
+import useNotification from "../../lib/hooks/useNotification";
 
 interface RootLayoutProps {
   children: React.ReactNode;
 }
 
 export default function ContentLayout({ children }: RootLayoutProps) {
+  const { requestNotificationsPermission } = useNotification();
+
+  useEffect(() => {
+    requestNotificationsPermission(true).catch(() =>
+      toast.error("Notifications not enabled"),
+    );
+  }, []);
   return (
     <main>
       <AuthProvider>

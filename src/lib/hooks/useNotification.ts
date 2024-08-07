@@ -31,6 +31,7 @@ export default function useNotification() {
   async function requestNotificationsPermission(
     initToken?: boolean,
   ): Promise<boolean> {
+    debugger;
     if (!canUseNotifications()) {
       toast.error("Notifications are not supported on this device");
     }
@@ -51,6 +52,9 @@ export default function useNotification() {
    * @returns push token or error message
    */
   async function initNotifications(): Promise<void> {
+    if (Notification.permission !== "granted") {
+      return;
+    }
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
         navigator.serviceWorker
