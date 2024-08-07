@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/auth/authOptions";
 import axios from "axios";
-import prisma from "../../../_db/db";
+import prisma from "@/app/api/_db/db";
 import moment from "moment";
 import { CalendarEvents } from "@/models/calendarEvents";
-import { canNotifyAt } from "../../[calendarId]/event/[eventId]/notify/route";
+import { canNotifyAt } from "@/app/api/utils";
 
 type DateType = "day" | "week" | "month";
 
