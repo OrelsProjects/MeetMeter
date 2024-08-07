@@ -79,6 +79,8 @@ export default function AuthProvider({
   }, [currentUser]);
 
   useEffect(() => {
+    console.log("status", status);
+    console.log("pathname", pathname);
     if (status === "loading") return;
     if (status === "authenticated") {
       if (
@@ -90,7 +92,7 @@ export default function AuthProvider({
       }
     } else {
       if (!pathname.includes("/login") && !pathname.includes("/register")) {
-        router.push("/");
+        router.push("/login");
       }
     }
   }, [status]);
