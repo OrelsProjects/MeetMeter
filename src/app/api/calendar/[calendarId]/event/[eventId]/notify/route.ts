@@ -7,8 +7,10 @@ import prisma from "../../../../../_db/db";
 import { sendNotification } from "../../../../../notifications/utils";
 import loggerServer from "../../../../../../../loggerServer";
 import moment from "moment";
-import { canNotifyAt, MIN_TIME_BETWEEN_NOTIFICATIONS } from "../../../../../utils";
-
+import {
+  canNotifyAt,
+  MIN_TIME_BETWEEN_NOTIFICATIONS,
+} from "../../../../../utils";
 
 export async function POST(
   req: NextRequest,
@@ -180,7 +182,7 @@ export async function POST(
         continue;
       }
 
-      const onClickNavigateTo = `${process.env.APP_BASE_URL}/responses/${responseEvent.id}`;
+      const onClickNavigateTo = `/responses/${responseEvent.id}`;
 
       notificationPromises.push(
         sendNotification({
