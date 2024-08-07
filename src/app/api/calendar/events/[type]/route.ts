@@ -6,6 +6,7 @@ import prisma from "@/app/api/_db/db";
 import moment from "moment";
 import { CalendarEvents } from "@/models/calendarEvents";
 import { canNotifyAt } from "@/app/api/utils";
+import loggerServer from "../../../../../loggerServer";
 
 type DateType = "day" | "week" | "month";
 
@@ -98,6 +99,7 @@ export async function GET(
       { status: 200 },
     );
   } catch (error: any) {
+    console.log("Error getting events", JSON.stringify(error));
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
