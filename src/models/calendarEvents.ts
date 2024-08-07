@@ -1,3 +1,7 @@
+export interface CalendarEventMeta {
+  canNotifyAt?: Date | "now";
+}
+
 export interface CalendarEvents {
   kind: string;
   etag: string;
@@ -10,7 +14,7 @@ export interface CalendarEvents {
   accessRole: string;
   defaultReminders: Reminder[];
   nextPageToken: string;
-  items: CalendarEvent[];
+  items: (CalendarEvent & CalendarEventMeta)[];
 }
 
 interface Reminder {

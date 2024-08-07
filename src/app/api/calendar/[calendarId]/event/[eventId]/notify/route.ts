@@ -6,8 +6,51 @@ import { CalendarEvent } from "../../../../../../../models/calendarEvents";
 import prisma from "../../../../../_db/db";
 import { sendNotification } from "../../../../../notifications/utils";
 import loggerServer from "../../../../../../../loggerServer";
+import moment from "moment";
 
 const MIN_TIME_BETWEEN_NOTIFICATIONS = 4 * 60 * 60 * 1000;
+
+/**
+ * Check if the user can notify attendees
+ * @param eventId The event id
+ * @param userId The user id
+ * @returns The date when the user can notify attendees again. Null if the user can notify attendees
+ */
+export const canNotifyAt = async (
+  // calendarId: string,
+  eventId: string,
+  userId: string,
+): Promise<Date | "now"> => {
+  const lastNotification = await prisma.responseEventNotifications.findFirst({
+    where: {
+      responseEvent: {
+        eventId,
+        // calendarId,
+      },
+      sentBy: userId,
+    },
+    orderBy: {
+      sentAt: "desc",
+    },
+  });
+
+  if (!lastNotification) {
+    return "now";
+  }
+
+  const lastNotificationDate = new Date(lastNotification.sentAt);
+  const now = new Date();
+  if (
+    now.getTime() - lastNotificationDate.getTime() >
+    MIN_TIME_BETWEEN_NOTIFICATIONS
+  ) {
+    return "now";
+  }
+
+  return new Date(
+    lastNotificationDate.getTime() + MIN_TIME_BETWEEN_NOTIFICATIONS,
+  );
+};
 
 export async function POST(
   req: NextRequest,
@@ -22,6 +65,7 @@ export async function POST(
       },
     );
   }
+
   try {
     const { calendarId, eventId } = params;
     const url = `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events/${eventId}`;
@@ -41,28 +85,15 @@ export async function POST(
       );
     }
 
-    const lastNotification = await prisma.responseEventNotifications.findFirst({
-      where: {
-        responseEvent: {
-          eventId,
-          calendarId,
-        },
-        sentBy: session.user.userId,
-      },
-      orderBy: {
-        sentAt: "desc",
-      },
-    });
+    const canNotifyAttendeesAt = await canNotifyAt(
+      eventId,
+      session.user.userId,
+    );
 
-    const now = new Date();
-    const timeSinceLastNotification =
-      lastNotification && lastNotification.sentAt
-        ? now.getTime() - lastNotification.sentAt.getTime()
-        : Infinity;
-
-    if (timeSinceLastNotification < MIN_TIME_BETWEEN_NOTIFICATIONS) {
+    if (canNotifyAttendeesAt !== "now") {
+      const timeToNotify = moment(canNotifyAttendeesAt).format("HH:mm");
       return NextResponse.json(
-        { error: "You can only notify attendees every 4 hours" },
+        { error: `You can notify attendees again at ${timeToNotify}` },
         { status: 429 },
       );
     }
@@ -121,6 +152,11 @@ export async function POST(
       end: eventEndDate,
     };
 
+    // attendees without user
+    const attendeesWithoutUser = attendees
+      .filter(email => !users.map(user => user.email).includes(email))
+      .filter(email => email !== session.user.email);
+
     const responseEvent = await prisma.responseEvent.upsert({
       create: {
         ...eventData,
@@ -136,22 +172,43 @@ export async function POST(
       },
     });
 
-    await prisma.userResponse.createMany({
-      data: users.map(user => ({
-        responseEventId: responseEvent.id,
-        userId: user.id,
-      })),
-      skipDuplicates: true,
-    });
+    try {
+      await prisma.$transaction([
+        prisma.userResponse.createMany({
+          data: users.map(user => ({
+            responseEventId: responseEvent.id,
+            userId: user.id,
+          })),
+          skipDuplicates: true,
+        }),
 
-    // create a response for the user who sent the notification
-    await prisma.userResponse.create({
-      data: {
-        responseEventId: responseEvent.id,
-        userId: session.user.userId,
-      },
-    });
+        // create attendees without user and set email instead of userId
+        prisma.userResponse.createMany({
+          data: attendeesWithoutUser.map(email => ({
+            responseEventId: responseEvent.id,
+            email,
+          })),
+          skipDuplicates: true,
+        }),
 
+        // create a response for the user who sent the notification
+        prisma.userResponse.createMany({
+          data: {
+            responseEventId: responseEvent.id,
+            userId: session.user.userId,
+          },
+          skipDuplicates: true,
+        }),
+      ]);
+    } catch (error: any) {
+      loggerServer.error("Error creating user responses", error);
+      await prisma.responseEvent.delete({
+        where: {
+          id: responseEvent.id,
+        },
+      });
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
     const tokens: { userId: string; token?: string }[] = users?.map(user => ({
       userId: user.id,
       token: user.meta?.pushToken || user.meta?.pushTokenMobile || undefined,
@@ -195,7 +252,14 @@ export async function POST(
       },
     });
 
-    return NextResponse.json(response.data, { status: 200 });
+    return NextResponse.json(
+      {
+        nextNotificationAt: moment(
+          new Date().getTime() + MIN_TIME_BETWEEN_NOTIFICATIONS,
+        ).toISOString(),
+      },
+      { status: 200 },
+    );
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

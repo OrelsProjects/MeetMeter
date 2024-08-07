@@ -1,5 +1,8 @@
 import React, { useMemo } from "react";
-import { CalendarEvent } from "../../../models/calendarEvents";
+import {
+  CalendarEvent,
+  CalendarEventMeta,
+} from "../../../models/calendarEvents";
 import { IoMdNotifications } from "react-icons/io";
 import { Button } from "../../../components/ui/button";
 import axios from "axios";
@@ -7,19 +10,27 @@ import { toast } from "react-toastify";
 import moment from "moment";
 import { cn } from "../../../lib/utils";
 import { Skeleton } from "../../../components/ui/skeleton";
+import { useAppDispatch } from "../../../lib/hooks/redux";
+import { setEventNotified } from "../../../lib/features/events/eventsSlice";
+import {
+  Tooltip,
+  TooltipProvider,
+  TooltipContent,
+  TooltipTrigger,
+} from "../../../components/ui/tooltip";
 
 const colorMapping: Record<string, string> = {
-  1: "bg-indigo-600 text-white", // Lavender: #7986CB
-  2: "bg-teal-600 text-white", // Sage: #338679
-  3: "bg-purple-600 text-white", // Grape: #8E24AA
-  4: "bg-pink-600 text-white", // Flamingo: #E67C73
-  5: "bg-yellow-600 text-white", // Banana: #F6BF26
-  6: "bg-red-600 text-white", // Tangerine: #F4511E
-  7: "bg-cyan-600 text-white", // Peacock: #039BE5
-  8: "bg-gray-700 text-white", // Graphite: #616161
-  9: "bg-blue-600 text-white", // Blueberry: #3F51B5
-  10: "bg-green-700 text-white", // Basil: #0B8043
-  11: "bg-red-700 text-white", // Tomato: #D50000
+  1: "bg-indigo-400 text-white",
+  2: "bg-teal-400 text-white",
+  3: "bg-purple-400 text-white",
+  4: "bg-pink-400 text-white",
+  5: "bg-yellow-400 text-white",
+  6: "bg-orange-400 text-white",
+  7: "bg-cyan-400 text-white",
+  8: "bg-gray-500 text-white",
+  9: "bg-blue-400 text-white",
+  10: "bg-green-600 text-white",
+  11: "bg-red-600 text-white",
 };
 
 export const LoadingEventComponent = () => (
@@ -29,7 +40,7 @@ export const LoadingEventComponent = () => (
         "w-80 h-28 flex flex-col gap-0.5 p-2 rounded-lg text-secondary-foreground",
       )}
     />
-    <Skeleton className="w-8 h-8" />
+    <Skeleton className="w-8 h-8 p-1" />
   </div>
 );
 
@@ -39,30 +50,38 @@ const EventComponent = ({
   defaultBackgroundColor,
   defaultForegroundColor,
 }: {
-  event: CalendarEvent;
+  event: CalendarEvent & CalendarEventMeta;
   notify?: {
     calendarName: string;
   };
   defaultBackgroundColor?: string;
   defaultForegroundColor?: string;
 }) => {
+  const dispatch = useAppDispatch();
+
   const notifyUsers = async () => {
     if (!notify) return;
     const toastId = toast.loading("Sending notifications...");
     try {
-      const { data } = await axios.post(
+      const { data } = await axios.post<{ nextNotificationAt: Date }>(
         `api/calendar/${notify.calendarName}/event/${event.id}/notify`,
       );
-      console.log(data);
+      toast.success("Notifications sent successfully");
+      dispatch(
+        setEventNotified({
+          eventId: event.id,
+          canNotifyAt: data.nextNotificationAt,
+        }),
+      );
     } catch (error: any) {
       console.error(error.message);
-    } finally {
-      toast.update(toastId, {
-        render: "Notifications sent",
-        type: "success",
+      toast.error(error.message, {
+        type: "error",
         isLoading: false,
         autoClose: 2000,
       });
+    } finally {
+      toast.dismiss(toastId);
     }
   };
 
@@ -96,24 +115,51 @@ const EventComponent = ({
     return "";
   }, [event.start.dateTime, event.end.dateTime]);
 
+  const disabled = useMemo(
+    () => event.canNotifyAt !== "now",
+    [event.canNotifyAt],
+  );
+
   return (
-    <div className="w-full h-fit flex flex-row items-center gap-4">
-      <div
-        className={cn(
-          "w-80 h-28 flex flex-col gap-0.5 p-2 rounded-lg text-secondary-foreground",
-          colorClassname,
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger className="cursor-default">
+          <div className="w-full h-fit flex flex-row items-center gap-4">
+            <div
+              className={cn(
+                "w-80 h-28 flex flex-col gap-0.5 p-2 rounded-lg text-secondary-foreground transition-all duration-500",
+                colorClassname,
+                { grayscale: disabled },
+              )}
+              style={colorStyle}
+            >
+              <h1 className="font-semibold line-clamp-2">{event.summary}</h1>
+              <p className="font-light text-sm">{TimeRange}</p>
+            </div>
+            {notify && (
+              <Button
+                variant="ghost"
+                className="px-1"
+                onClick={notifyUsers}
+                disabled={disabled}
+              > 
+                <IoMdNotifications className="h-8 w-8 fill-primary" />
+              </Button>
+            )}
+          </div>
+        </TooltipTrigger>
+        {event.canNotifyAt !== "now" && (
+          <TooltipContent className="bg-gray-400/50 dark:bg-gray-400/20 text-white">
+            <p>
+              You can notify attendees again at:{" "}
+              <span className="text-primary">
+                {moment(event.canNotifyAt).format("HH:mm")}
+              </span>
+            </p>
+          </TooltipContent>
         )}
-        style={colorStyle}
-      >
-        <h1 className="font-semibold line-clamp-2">{event.summary}</h1>
-        <p className="font-light text-sm">{TimeRange}</p>
-      </div>
-      {notify && (
-        <Button variant="ghost" onClick={notifyUsers}>
-          <IoMdNotifications className="h-8 w-8 fill-primary" />
-        </Button>
-      )}
-    </div>
+      </Tooltip>
+    </TooltipProvider>
   );
 };
 

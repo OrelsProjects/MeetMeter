@@ -123,8 +123,9 @@ model UserOrders {
 }
 
 model UserResponse {
-  id     String @id @default(cuid())
-  userId String
+  id     String  @id @default(cuid())
+  userId String?
+  email  String? // For users that did not sign up yet
 
   responseEventId String
 
@@ -134,7 +135,7 @@ model UserResponse {
   respondAt DateTime?
 
   responseEvent ResponseEvent @relation(fields: [responseEventId], references: [id], onDelete: Cascade)
-  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          User?         @relation(fields: [userId], references: [id], onDelete: NoAction)
 
   @@unique([userId, responseEventId])
   @@map("userResponse")

@@ -13,18 +13,20 @@ import {
 import EventComponent, { LoadingEventComponent } from "./eventComponent";
 import useNotification from "../../../lib/hooks/useNotification";
 import HintDownloadAppIOS from "./hintDownloadAppIOS";
-//  FOR TOMORROW: CREATE A COMPONENT FOR EVENT AND ADD A SEND TO ALL NOTIFICATION BUTTON.
 
 export default function Home() {
   const dispatch = useAppDispatch();
   const { requestNotificationsPermission } = useNotification();
   const { events } = useAppSelector(selectEvents);
   const [loading, setLoading] = useState(false);
+  const [type, setType] = useState<"day" | "week" | "month">("day");
 
   const getTodaysEvents = async () => {
     setLoading(true);
     try {
-      const { data } = await axios.get<CalendarEvents>("api/calendar/today");
+      const { data } = await axios.get<CalendarEvents>(
+        `api/calendar/events/${type}`,
+      );
       dispatch(setEvents(data));
       setEvents(data);
     } catch (error: any) {
@@ -35,11 +37,14 @@ export default function Home() {
   };
 
   useEffect(() => {
-    requestNotificationsPermission(true)
-      .catch(() => toast.error("Notifications not enabled"));
-
-    getTodaysEvents();
+    requestNotificationsPermission(true).catch(() =>
+      toast.error("Notifications not enabled"),
+    );
   }, []);
+
+  useEffect(() => {
+    getTodaysEvents();
+  }, [type]);
 
   return (
     <div className="h-full overflow-clip flex flex-col gap-4 justify-between">

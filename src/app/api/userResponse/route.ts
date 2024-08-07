@@ -13,7 +13,7 @@ export async function GET(_: NextRequest) {
     const response: UserResponseWithEvent[] =
       await prisma.userResponse.findMany({
         where: {
-          userId: session.user.userId,
+          OR: [{ userId: session.user.userId }, { email: session.user.email }],
         },
         include: {
           responseEvent: true,

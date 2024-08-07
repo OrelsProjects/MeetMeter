@@ -5,6 +5,8 @@ import { CalendarEvents } from "../../../models/calendarEvents";
 import { UserResponseWithEvent } from "../../../models/userResponse";
 import { UserResponse } from "@prisma/client";
 
+type EventId = string;
+
 export interface EventsState {
   events: CalendarEvents | null;
   userEventResponses: UserResponseWithEvent[];
@@ -28,6 +30,21 @@ const eventsSlice = createSlice({
     ) => {
       state.userEventResponses = action.payload;
     },
+    setEventNotified: (
+      state,
+      action: PayloadAction<{ eventId: EventId; canNotifyAt: Date | "now" }>,
+    ) => {
+      if (!state.events) return;
+      const index = state.events.items.findIndex(
+        event => event.id === action.payload.eventId,
+      );
+      if (index === -1) {
+        return;
+      } else {
+        state.events.items[index].canNotifyAt = action.payload.canNotifyAt;
+      }
+    },
+
     updateResponse: (
       state,
       action: PayloadAction<{
@@ -50,8 +67,12 @@ const eventsSlice = createSlice({
   },
 });
 
-export const { setEvents, setUserEventResponses, updateResponse } =
-  eventsSlice.actions;
+export const {
+  setEvents,
+  setUserEventResponses,
+  setEventNotified,
+  updateResponse,
+} = eventsSlice.actions;
 
 export const selectEvents = (state: RootState): EventsState => state.events;
 
