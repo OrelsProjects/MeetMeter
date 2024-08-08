@@ -10,7 +10,7 @@ import { toast } from "react-toastify";
 import moment from "moment";
 import { cn } from "../../../lib/utils";
 import { Skeleton } from "../../../components/ui/skeleton";
-import { useAppDispatch } from "../../../lib/hooks/redux";
+import { useAppDispatch, useAppSelector } from "../../../lib/hooks/redux";
 import { setEventNotified } from "../../../lib/features/events/eventsSlice";
 import {
   Tooltip,
@@ -63,6 +63,7 @@ const EventComponent = ({
   defaultForegroundColor?: string;
 }) => {
   const dispatch = useAppDispatch();
+  const { user } = useAppSelector(state => state.auth);
 
   const notifyUsers = async () => {
     if (!notify) return;
@@ -107,6 +108,11 @@ const EventComponent = ({
       : {};
   }, [colorClassname, defaultBackgroundColor, defaultForegroundColor]);
 
+  const canNotify = useMemo(() => {
+    if (event.organizer.email === user?.email) return !!notify;
+    return false;
+  }, [event.organizer.email, user?.email]);
+
   const TimeRange = useMemo(() => {
     const start = event.start.dateTime
       ? moment(event.start.dateTime).format("HH:mm")
@@ -138,7 +144,7 @@ const EventComponent = ({
         <h1 className="font-semibold line-clamp-2">{event.summary}</h1>
         <p className="font-light text-sm">{TimeRange}</p>
       </div>
-      {notify && (
+      {canNotify && (
         <Button
           variant="ghost"
           className="px-1"

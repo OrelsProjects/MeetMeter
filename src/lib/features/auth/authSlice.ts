@@ -46,6 +46,7 @@ const authSlice = createSlice({
         state.user = user;
       }
       state.state = action.payload.state ?? "authenticated";
+      state.isAdmin = user?.role === "admin";
     },
     updateUserSettings: (
       state,
@@ -68,6 +69,7 @@ const authSlice = createSlice({
     },
     clearUser: state => {
       state.loading = false;
+      state.isAdmin = false;
       state.user = null;
       state.state = "unauthenticated";
     },

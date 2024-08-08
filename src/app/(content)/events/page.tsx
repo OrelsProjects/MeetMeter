@@ -11,11 +11,10 @@ import {
   setEvents,
 } from "../../../lib/features/events/eventsSlice";
 import EventComponent, { LoadingEventComponent } from "./eventComponent";
-import useNotification from "../../../lib/hooks/useNotification";
 
 export default function Home() {
   const dispatch = useAppDispatch();
-  const { requestNotificationsPermission } = useNotification();
+  const { isAdmin } = useAppSelector(state => state.auth);
   const { events } = useAppSelector(selectEvents);
   const [loading, setLoading] = useState(false);
   const [type, setType] = useState<"day" | "week" | "month">("day");
@@ -52,7 +51,9 @@ export default function Home() {
                   defaultBackgroundColor={events.calendarBackgroundColor}
                   defaultForegroundColor={events.calendarForegroundColor}
                   event={event}
-                  notify={{ calendarName: events.summary }}
+                  notify={
+                    isAdmin ? { calendarName: events.summary } : undefined
+                  }
                 />
               </li>
             ))}
