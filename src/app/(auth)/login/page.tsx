@@ -2,20 +2,36 @@
 
 import GoogleLogin from "../../../components/auth/googleLogin";
 import AppleLogin from "../../../components/auth/appleLogin";
+import Image from "next/image";
 import { Button } from "../../../components/ui/button";
 import Link from "next/link";
 
 const Auth = () => {
   return (
     <div className="h-screen w-screen flex flex-col justify-center items-center text-center overflow-hidden px-6 lg:px-0 ">
+      <div className="w-full flex flex-row justify-center items-center absolute top-20 md:top-40">
+        <Image
+          src="/favicon.png"
+          alt="MeetMeter Logo"
+          width={100}
+          height={100}
+          className="mb-8"
+        />
+        <h1 className="text-3xl font-bold text-foreground">
+          MeetMeter
+        </h1>
+      </div>
       <div className="w-full flex flex-col justify-between lg:max-w-[420px] rounded-xl px-8 pt-8 bg-card">
         <div className="w-full flex flex-col gap-3">
           <GoogleLogin signInTextPrefix="Sign in with" />
           <AppleLogin signInTextPrefix="Sign in with" />
         </div>
         <div className="flex flex-row gap-1 justify-center items-center font-extralight mt-8">
-          <span className="text-muted-foreground">
+          <span className="text-muted-foreground hidden md:flex">
             Don&apos;t have an account?
+          </span>
+          <span className="text-muted-foreground flex md:hidden">
+            No account?
           </span>
           <Button
             variant="link"
