@@ -13,6 +13,7 @@ import useNotification from "../../../lib/hooks/useNotification";
 import { updateUserSettings } from "../../../lib/features/auth/authSlice";
 import { ThemeToggle } from "../../../components/themeToggle";
 import Divider from "../../../components/ui/divider";
+import Link from "next/link";
 
 interface SettingsProps {}
 
@@ -95,65 +96,88 @@ const SettingsScreen: React.FC<SettingsProps> = () => {
   };
 
   return (
-    <div className="flex flex-col gap-4 mt-3">
-      <div className="flex flex-row justify-between items-center">
-        <span className="text-xl font-semibold">{user?.email}</span>
-      </div>
-      <Divider />
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-col gap-2">
-          <span className="text-lg font-semibold">Appearance</span>
-          <div className="pl-2">
-            <ThemeToggle />
-          </div>
+    <div className="w-full h-full flex flex-col justify-between">
+      <div className="flex flex-col gap-4 mt-3">
+        <div className="flex flex-row justify-between items-center">
+          <span className="text-xl font-semibold">{user?.email}</span>
         </div>
-        {canUseNotifications() && (
+        <Divider />
+        <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
-            <span className="text-lg font-semibold">Notifications</span>
+            <span className="text-lg font-semibold">Appearance</span>
             <div className="pl-2">
-              {isNotificationsGranted ? (
-                <Switch
-                  className="w-10"
-                  onCheckedChange={updateNotificationSettings}
-                  checked={settings.showNotifications}
-                />
-              ) : (
-                <Button
-                  variant="default"
-                  className="w-fit px-2"
-                  onClick={() => {
-                    requestNotificationsPermission().then(granted => {
-                      if (granted) {
-                        updateNotificationSettings(true);
-                      }
-                    });
-                  }}
-                >
-                  Enable notifications
-                </Button>
-              )}
+              <ThemeToggle />
             </div>
           </div>
-        )}
-        <div className="flex flex-col gap-2 w-full justify-start">
-          <span className="text-lg font-semibold">Account</span>
-          <div className="flex flex-col gap-1 pl-2">
-            <Button
-              variant="ghost"
-              className="w-fit px-1 md:hover:bg-slate-400/40"
-              onClick={handleSignOut}
-            >
-              LOGOUT
-            </Button>
-            <Button
-              variant="link"
-              className="w-fit px-1 md:hover:bg-destructive/40 md:hover:text-destructive-foreground hover:no-underline text-destructive/60 text-sm"
-              onClick={handleDeleteUserRequest}
-            >
-              DELETE
-            </Button>
+          {canUseNotifications() && (
+            <div className="flex flex-col gap-2">
+              <span className="text-lg font-semibold">Notifications</span>
+              <div className="pl-2">
+                {isNotificationsGranted ? (
+                  <Switch
+                    className="w-10"
+                    onCheckedChange={updateNotificationSettings}
+                    checked={settings.showNotifications}
+                  />
+                ) : (
+                  <Button
+                    variant="default"
+                    className="w-fit px-2"
+                    onClick={() => {
+                      requestNotificationsPermission().then(granted => {
+                        if (granted) {
+                          updateNotificationSettings(true);
+                        }
+                      });
+                    }}
+                  >
+                    Enable notifications
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
+          <div className="flex flex-col gap-2 w-full justify-start">
+            <span className="text-lg font-semibold">Account</span>
+            <div className="flex flex-col gap-1 pl-2">
+              <Button
+                variant="ghost"
+                className="w-fit px-1 md:hover:bg-slate-400/40"
+                onClick={handleSignOut}
+              >
+                LOGOUT
+              </Button>
+              <Button
+                variant="link"
+                className="w-fit px-1 md:hover:bg-destructive/40 md:hover:text-destructive-foreground hover:no-underline text-destructive/60 text-sm"
+                onClick={handleDeleteUserRequest}
+              >
+                DELETE
+              </Button>
+            </div>
           </div>
         </div>
+      </div>
+      <div className="w-full flex flex-row justify-center items-center gap-1 text-xs text-foreground font-light">
+        {/* Bulleted list: By Orel , <a>privacy<a>, <a>terms of service<a> */}
+        By Orel •
+        <Link
+          href="/privacy"
+          className="text-sky-600 underline dark:text-accent"
+          target="_blank"
+          about="Privacy"
+        >
+          Privacy
+        </Link>
+        •
+        <Link
+          href="/tos"
+          className="text-sky-600 underline dark:text-accent"
+          target="_blank"
+          about="Terms of Service"
+        >
+          Terms of Service
+        </Link>
       </div>
     </div>
   );

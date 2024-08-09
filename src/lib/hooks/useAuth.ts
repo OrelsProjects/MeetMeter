@@ -95,6 +95,7 @@ const useAuth = () => {
 
   const signOut = useCallback(async () => {
     try {
+      debugger;
       EventTracker.track("User signed out");
       await signOutAuth({ callbackUrl: "/" });
       dispatch(clearUser());

@@ -5,34 +5,39 @@ export const canUseNotifications = () => {
   );
 };
 
+const isNavigator = typeof navigator !== "undefined";
+
+const getNavigator = (): Navigator | undefined =>
+  isNavigator ? navigator : undefined;
+
 export const isMobile = {
   Android: function () {
-    return navigator.userAgent.match(/Android/i);
+    return getNavigator()?.userAgent.match(/Android/i);
   },
   BlackBerry: function () {
-    return navigator.userAgent.match(/BlackBerry/i);
+    return getNavigator()?.userAgent.match(/BlackBerry/i);
   },
   iOS: function () {
-    return navigator.userAgent.match(/iPhone|iPad|iPod/i);
+    return getNavigator()?.userAgent.match(/iPhone|iPad|iPod/i);
   },
   Opera: function () {
-    return navigator.userAgent.match(/Opera Mini/i);
+    return getNavigator()?.userAgent.match(/Opera Mini/i);
   },
   Samsung: function () {
-    return navigator.userAgent.match(
+    return getNavigator()?.userAgent.match(
       /SAMSUNG|Samsung|SGH-[I|N|T]|GT-[I|N]|SM-[A|N|P|T|Z]|SHV-E|SCH-[I|J|R|S]|SPH-L/i,
     );
   },
   Windows: function () {
     return (
-      navigator.userAgent.match(/IEMobile/i) ||
-      navigator.userAgent.match(/WPDesktop/i)
+      getNavigator()?.userAgent.match(/IEMobile/i) ||
+      getNavigator()?.userAgent.match(/WPDesktop/i)
     );
   },
   Safari: function () {
     return (
-      navigator.userAgent.match(/Safari/i) &&
-      navigator.userAgent.match(/Version/i)
+      getNavigator()?.userAgent.match(/Safari/i) &&
+      getNavigator()?.userAgent.match(/Version/i)
     );
   },
 };
