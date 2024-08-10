@@ -12,7 +12,7 @@ export async function PATCH(req: NextRequest): Promise<any> {
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  let user: AppUser | null = null;
+  let user = session.user;
   try {
     if (!session.user?.userId) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -25,7 +25,7 @@ export async function PATCH(req: NextRequest): Promise<any> {
     });
     return NextResponse.json({}, { status: 200 });
   } catch (error: any) {
-    Logger.error("Error updating user", user || "unknown", {
+    Logger.error("Error updating user", user?.userId, {
       error,
     });
     return NextResponse.json({ error: error.message }, { status: 500 });

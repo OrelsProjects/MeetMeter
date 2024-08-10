@@ -160,10 +160,10 @@ const SettingsScreen: React.FC<SettingsProps> = () => {
       </div>
       <div className="w-full flex flex-row justify-center items-center gap-1 text-xs text-foreground font-light">
         {/* Bulleted list: By Orel , <a>privacy<a>, <a>terms of service<a> */}
-        By Orel •
+        <strong>By Orel</strong> •
         <Link
           href="/privacy"
-          className="text-sky-600 underline dark:text-accent"
+          className="text-sky-600 underline dark:text-sky-400/70"
           target="_blank"
           about="Privacy"
         >
@@ -172,7 +172,7 @@ const SettingsScreen: React.FC<SettingsProps> = () => {
         •
         <Link
           href="/tos"
-          className="text-sky-600 underline dark:text-accent"
+          className="text-sky-600 underline dark:text-sky-400/70"
           target="_blank"
           about="Terms of Service"
         >
