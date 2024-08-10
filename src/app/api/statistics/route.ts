@@ -29,9 +29,6 @@ export async function GET(req: NextRequest) {
         },
         responseEvent: {
           organizer: session.user.userId,
-          end: {
-            lte: now,
-          },
         },
       },
     });
