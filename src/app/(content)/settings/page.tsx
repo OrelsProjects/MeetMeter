@@ -159,7 +159,6 @@ const SettingsScreen: React.FC<SettingsProps> = () => {
         </div>
       </div>
       <div className="w-full flex flex-row justify-center items-center gap-1 text-xs text-foreground font-light">
-        {/* Bulleted list: By Orel , <a>privacy<a>, <a>terms of service<a> */}
         <strong>By Orel</strong> •
         <Link
           href="/privacy"

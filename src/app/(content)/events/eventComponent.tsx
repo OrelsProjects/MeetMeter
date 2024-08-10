@@ -144,16 +144,18 @@ const EventComponent = ({
         <h1 className="font-semibold line-clamp-2">{event.summary}</h1>
         <p className="font-light text-sm">{TimeRange}</p>
       </div>
-      {canNotify && (
-        <Button
-          variant="ghost"
-          className="px-1"
-          onClick={notifyUsers}
-          disabled={disabled}
-        >
-          <IoMdNotifications className="h-8 w-8 fill-primary" />
-        </Button>
-      )}
+      <div className="w-10 h-10">
+        {canNotify && (
+          <Button
+            variant="ghost"
+            className="px-1"
+            onClick={notifyUsers}
+            disabled={disabled}
+          >
+            <IoMdNotifications className="h-8 w-8 fill-primary" />
+          </Button>
+        )}
+      </div>
     </div>
   );
 
