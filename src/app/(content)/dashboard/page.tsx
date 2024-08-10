@@ -100,7 +100,7 @@ export default function DashboardPage() {
         />
       </div>
       <div className="h-56 w-fit flex flex-col">
-        <div className="w-full h-full flex flex-col gap-0 items-center justify-center">
+        <div className="w-full h-full flex flex-col gap-4 items-center justify-center">
           <div className="w-fit h-fit flex flex-row gap-4 mt-5">
             {formattedData
               .map((it, index) => (
@@ -108,22 +108,24 @@ export default function DashboardPage() {
                   key={`pie-chart-legend-${index}`}
                   className="flex flex-row gap-1 items-center"
                 >
-                  <div className="w-2 h-2 rounded-full">
-                    {loading ? (
-                      <Skeleton className="w-full h-full rounded-full" />
-                    ) : (
-                      <div
-                        className="w-full h-full rounded-full"
-                        style={{
-                          backgroundColor: index === 0 ? "#3b82f6" : "#f7146a",
-                        }}
-                      />
-                    )}
-                  </div>
                   {loading ? (
-                    <Skeleton className="w-24 h-4" />
+                    <>
+                      <Skeleton className="w-2 h-2 rounded-full" />
+                      <Skeleton className="w-32 h-4" />
+                    </>
                   ) : (
-                    <span className="text-foreground/70">{it.label}</span>
+                    <>
+                      <div className="w-2 h-2 rounded-full">
+                        <div
+                          className="w-full h-full rounded-full"
+                          style={{
+                            backgroundColor:
+                              index === 0 ? "#3b82f6" : "#f7146a",
+                          }}
+                        />
+                      </div>
+                      <span className="text-foreground/70">{it.label}</span>
+                    </>
                   )}
                 </div>
               ))
