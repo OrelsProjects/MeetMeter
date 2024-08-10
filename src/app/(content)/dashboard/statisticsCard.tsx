@@ -20,7 +20,7 @@ export default function StatisticsCard({
   return (
     <div
       className={cn(
-        "h-32 w-full  overflow-hidden rounded-lg bg-card",
+        "h-32 w-full  overflow-hidden rounded-lg bg-card dark:bg-card",
         className,
       )}
     >
