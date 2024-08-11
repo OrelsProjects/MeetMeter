@@ -1,8 +1,7 @@
 "use client";
 
 import axios from "axios";
-import React, { useEffect, useState } from "react";
-import { Button } from "../../../components/ui/button";
+import React, { useEffect, useRef, useState } from "react";
 import { CalendarEvents } from "../../../models/calendarEvents";
 import { toast } from "react-toastify";
 import { useAppDispatch, useAppSelector } from "../../../lib/hooks/redux";
@@ -11,15 +10,19 @@ import {
   setEvents,
 } from "../../../lib/features/events/eventsSlice";
 import EventComponent, { LoadingEventComponent } from "./eventComponent";
+import { Logger } from "../../../logger";
 
 export default function Home() {
   const dispatch = useAppDispatch();
   const { isAdmin } = useAppSelector(state => state.auth);
   const { events } = useAppSelector(selectEvents);
   const [loading, setLoading] = useState(false);
+  const loadingRef = useRef(false);
   const [type, setType] = useState<"day" | "week" | "month">("day");
 
   const getTodaysEvents = async () => {
+    if (loadingRef.current) return;
+    loadingRef.current = true;
     setLoading(true);
     try {
       const { data } = await axios.get<CalendarEvents>(
@@ -28,9 +31,23 @@ export default function Home() {
       dispatch(setEvents(data));
       setEvents(data);
     } catch (error: any) {
-      toast.error(error.message);
+      Logger.error(error);
+      toast.error(
+        () => (
+          <div>
+            <p>Did you give permission to access your calendar?</p>
+            <p className="text-xs text-foreground/70">
+              If not, relog and check the box.
+            </p>
+          </div>
+        ),
+        {
+          autoClose: 5000,
+        },
+      );
     } finally {
       setLoading(false);
+      loadingRef.current = false;
     }
   };
 

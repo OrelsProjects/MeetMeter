@@ -4,6 +4,7 @@ import { authOptions } from "../../../auth/authOptions";
 import AppUser from "../../../models/appUser";
 import prisma from "../_db/db";
 import Logger from "../../../loggerServer";
+import { google } from "googleapis";
 
 export async function GET(req: NextRequest): Promise<any> {
   const session = await getServerSession(authOptions);
@@ -41,9 +42,26 @@ export async function DELETE(req: NextRequest): Promise<any> {
     if (!session.user?.userId) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
+
+    const userAccount = await prisma.account.findFirst({
+      where: { userId: session.user.userId },
+      select: { access_token: true },
+    });
+
+    if (!userAccount) {
+      throw new Error("Account not found");
+    }
+
+    const accessToken = userAccount.access_token;
+    if (accessToken) {
+      const oauth2Client = new google.auth.OAuth2();
+      await oauth2Client.revokeToken(accessToken);
+    }
+
     await prisma.user.delete({
       where: { id: session.user?.userId },
     });
+    
     return NextResponse.json({}, { status: 200 });
   } catch (error: any) {
     Logger.error("Error deleting user", session.user.userId, { error });

@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button } from "../components/ui/button";
+import Link from "next/link";
 
 export default function Home() {
   const router = useRouter();
@@ -19,7 +20,9 @@ export default function Home() {
         <h1 className="text-3xl font-bold text-foreground">MeetMeter</h1>
       </div>
       <h1>Track your meetings and get insights so you can improve!</h1>
-      <Button onClick={() => router.push("/login")}>Get Started!</Button>
+      <Button onClick={() => router.push("/login")} asChild>
+        <Link href="/login">Get Started!</Link>
+      </Button>
     </main>
   );
 }

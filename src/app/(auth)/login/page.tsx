@@ -24,7 +24,7 @@ const Auth = () => {
       <div className="w-full flex flex-col justify-between lg:max-w-[420px] rounded-xl px-8 pt-8 bg-card">
         <div className="w-full flex flex-col gap-3">
           <GoogleLogin signInTextPrefix="Sign in with" />
-          <AppleLogin signInTextPrefix="Sign in with" />
+          {/* <AppleLogin signInTextPrefix="Sign in with" /> */}
         </div>
         <div className="flex flex-row gap-1 justify-center items-center font-extralight mt-8">
           <span className="text-muted-foreground hidden md:flex">
