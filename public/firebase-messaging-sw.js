@@ -25,21 +25,27 @@ class CustomPushEvent extends Event {
 }
 
 self.addEventListener("push", e => {
-  if (e.custom) return;
-  const oldData = e.data;
-  const newEvent = new CustomPushEvent({
-    data: {
-      json() {
-        const newData = oldData.json();
-        newData.data = { ...newData.data, ...newData.notification };
-        delete newData.notification;
-        return newData;
+  try {
+    console.log("event", JSON.stringify(e));
+    if (e.custom) return;
+    const oldData = e.data;
+    const newEvent = new CustomPushEvent({
+      data: {
+        json() {
+          const newData = oldData.json();
+          newData.data = { ...newData.data, ...newData.notification };
+          delete newData.notification;
+          return newData;
+        },
       },
-    },
-    waitUntil: e.waitUntil.bind(e),
-  });
-  e.stopImmediatePropagation();
-  dispatchEvent(newEvent);
+      waitUntil: e.waitUntil.bind(e),
+    });
+    console.log("newEvent", JSON.stringify(newEvent));
+    e.stopImmediatePropagation();
+    dispatchEvent(newEvent);
+  } catch (error) {
+    console.error("Error in push event", JSON.stringify(error));
+  }
 });
 
 const messaging = firebase.messaging();
