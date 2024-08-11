@@ -50,13 +50,13 @@ export async function POST(
       session.user.userId,
     );
 
-    // if (canNotifyAttendeesAt !== "now") {
-    //   const timeToNotify = moment(canNotifyAttendeesAt).format("HH:mm");
-    //   return NextResponse.json(
-    //     { error: `You can notify attendees again at ${timeToNotify}` },
-    //     { status: 429 },
-    //   );
-    // }
+    if (canNotifyAttendeesAt !== "now") {
+      const timeToNotify = moment(canNotifyAttendeesAt).format("HH:mm");
+      return NextResponse.json(
+        { error: `You can notify attendees again at ${timeToNotify}` },
+        { status: 429 },
+      );
+    }
 
     const attendees = event.attendees?.map(attendee => attendee.email);
 
