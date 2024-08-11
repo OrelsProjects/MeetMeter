@@ -89,14 +89,12 @@ self.addEventListener("notificationclick", event => {
   try {
     switch (event.action) {
       case "event-rate-bad":
-        sendResponseToServer("bad", event.notification.data.eventResponseId);
+        sendResponseToServer("bad", 2, event.notification.data.eventResponseId);
         break;
       case "event-rate-good":
-        sendResponseToServer("good", event.notification.data.eventResponseId);
-        break;
-      case "event-rate-excellent":
         sendResponseToServer(
-          "excellent",
+          "good",
+          3,
           event.notification.data.eventResponseId,
         );
         break;
@@ -116,10 +114,12 @@ self.addEventListener("notificationclick", event => {
   }
 });
 
-function sendResponseToServer(response, eventResponseId) {
-  const postUrl = `api/eventResponse/${eventResponseId}/response`;
+function sendResponseToServer(response, rating, eventResponseId) {
+  const postUrl = `/api/eventResponse/${eventResponseId}/response`;
   const postData = {
     response,
+    comments: "from-notification",
+    rating,
   };
 
   fetch(postUrl, {

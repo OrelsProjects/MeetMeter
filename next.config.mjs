@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  
   images: {
     unoptimized: true, // So NextJS doesn't cache images and bill you for it
     remotePatterns: [

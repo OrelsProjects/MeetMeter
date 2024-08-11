@@ -50,13 +50,13 @@ export async function POST(
       session.user.userId,
     );
 
-    if (canNotifyAttendeesAt !== "now") {
-      const timeToNotify = moment(canNotifyAttendeesAt).format("HH:mm");
-      return NextResponse.json(
-        { error: `You can notify attendees again at ${timeToNotify}` },
-        { status: 429 },
-      );
-    }
+    // if (canNotifyAttendeesAt !== "now") {
+    //   const timeToNotify = moment(canNotifyAttendeesAt).format("HH:mm");
+    //   return NextResponse.json(
+    //     { error: `You can notify attendees again at ${timeToNotify}` },
+    //     { status: 429 },
+    //   );
+    // }
 
     const attendees = event.attendees?.map(attendee => attendee.email);
 
@@ -106,7 +106,9 @@ export async function POST(
 
     const eventData = {
       organizer: session.user.userId,
+      organizerEmail: session.user.email,
       summary: event.summary,
+      calendarId,
       description: event.description,
       start: eventStartDate,
       end: eventEndDate,
@@ -125,53 +127,50 @@ export async function POST(
       },
       update: eventData,
       where: {
-        calendarId_eventId: {
-          calendarId,
-          eventId,
-        },
+        eventId
       },
     });
 
-    try {
-      await prisma.$transaction([
-        prisma.userResponse.createMany({
-          data: users.map(user => ({
-            responseEventId: responseEvent.id,
-            userId: user.id,
-          })),
-          skipDuplicates: true,
-        }),
+    await prisma.$transaction([
+      prisma.userResponse.createMany({
+        data: users.map(user => ({
+          responseEventId: responseEvent.id,
+          userId: user.id,
+        })),
+        skipDuplicates: true,
+      }),
 
-        // create attendees without user and set email instead of userId
-        prisma.userResponse.createMany({
-          data: attendeesWithoutUser.map(email => ({
-            responseEventId: responseEvent.id,
-            email,
-          })),
-          skipDuplicates: true,
-        }),
+      // create attendees without user and set email instead of userId
+      prisma.userResponse.createMany({
+        data: attendeesWithoutUser.map(email => ({
+          responseEventId: responseEvent.id,
+          email,
+        })),
+        skipDuplicates: true,
+      }),
 
-        // create a response for the user who sent the notification
-        prisma.userResponse.createMany({
-          data: {
-            responseEventId: responseEvent.id,
-            userId: session.user.userId,
-          },
-          skipDuplicates: true,
-        }),
-      ]);
-    } catch (error: any) {
-      loggerServer.error("Error creating user responses", error);
-      await prisma.responseEvent.delete({
-        where: {
-          id: responseEvent.id,
+      // create a response for the user who sent the notification
+      prisma.userResponse.createMany({
+        data: {
+          responseEventId: responseEvent.id,
+          userId: session.user.userId,
         },
-      });
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-    const tokens: { userId: string; token?: string }[] = users?.map(user => ({
+        skipDuplicates: true,
+      }),
+    ]);
+
+    const tokens: {
+      userId: string;
+      token: {
+        mobile?: string;
+        web?: string;
+      };
+    }[] = users?.map(user => ({
       userId: user.id,
-      token: user.meta?.pushToken || user.meta?.pushTokenMobile || undefined,
+      token: {
+        mobile: user.meta?.pushTokenMobile || undefined,
+        web: user.meta?.pushToken || undefined,
+      },
     }));
 
     const notificationPromises = [];
@@ -188,11 +187,12 @@ export async function POST(
         sendNotification({
           token,
           userId,
-          title: "Rate an event",
+          title: "Rate " + event.summary.slice(0, 20),
           type: "event-" + event.id,
           body:
-            session.user.name ||
-            "Someone" + "asks you to rate" + event.summary.slice(0, 20),
+            (session.user.name || "Someone") +
+            " asks you to rate" +
+            event.summary.slice(0, 20),
           onClickNavigateTo,
           data: {
             eventResponseId: responseEvent.id,
@@ -221,6 +221,7 @@ export async function POST(
       { status: 200 },
     );
   } catch (error: any) {
+    debugger;
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

@@ -150,12 +150,13 @@ model ResponseEvent {
   start DateTime
   end   DateTime
 
-  organizer String
+  organizer      String?
+  organizerEmail String?
 
   calendarId String
-  eventId    String
+  eventId    String @unique
 
-  user         User           @relation(fields: [organizer], references: [id], onDelete: Cascade)
+  user         User?          @relation(fields: [organizer], references: [id], onDelete: Cascade)
   userResponse UserResponse[]
 
   createdAt                  DateTime                     @default(now())

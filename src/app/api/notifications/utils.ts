@@ -1,8 +1,15 @@
 import { messaging } from "../../../../firebase.config.admin";
 import loggerServer from "../../../loggerServer";
 
+/**
+ * Policy: Send to mobile first, then to web, if mobile fails
+ * @param options Notification options
+ */
 export async function sendNotification(options: {
-  token: string;
+  token: {
+    mobile?: string;
+    web?: string;
+  };
   userId: string;
   title: string;
   type: string;
@@ -59,7 +66,7 @@ export async function sendNotification(options: {
   try {
     await messaging.send({
       ...message,
-      token,
+      token: token.web || "",
     });
 
     loggerServer.info("Notification sent", userId, {
@@ -69,6 +76,16 @@ export async function sendNotification(options: {
     loggerServer.error("Error sending mobile notification", userId, {
       data: { error, token },
     });
+    try {
+      await messaging.send({
+        ...message,
+        token: token.web || "",
+      });
+    } catch (error: any) {
+      loggerServer.error("Error sending web notification", userId, {
+        data: { error, token },
+      });
+    }
   } finally {
     return message;
   }

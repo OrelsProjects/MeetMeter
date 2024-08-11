@@ -18,6 +18,7 @@ export async function POST(
     );
   }
   try {
+    console.log("fix notifications");
     const { id } = params;
     const { response }: { response: SendUserResponse } = await req.json();
     const respondAt = new Date();

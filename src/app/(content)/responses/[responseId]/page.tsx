@@ -107,8 +107,8 @@ const ResponsePage = ({ params }: { params: { responseId: string } }) => {
       await toast.promise(
         sendResponse(params.responseId, {
           rating: values.rating,
-          comments: values.comments,
-          response: "",
+          comments: "from-web",
+          response: values.comments,
         }),
         {
           pending: "Sending response...",

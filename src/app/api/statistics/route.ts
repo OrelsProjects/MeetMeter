@@ -18,7 +18,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   try {
-    const now = new Date();
     const userResponses = await prisma.userResponse.findMany({
       include: {
         responseEvent: true,
@@ -28,7 +27,14 @@ export async function GET(req: NextRequest) {
           not: null,
         },
         responseEvent: {
-          organizer: session.user.userId,
+          OR: [
+            {
+              organizer: session.user.userId,
+            },
+            {
+              organizerEmail: session.user.email,
+            },
+          ],
         },
       },
     });

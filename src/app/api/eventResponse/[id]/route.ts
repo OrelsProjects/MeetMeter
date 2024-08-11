@@ -1,9 +1,7 @@
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { authOptions } from "@/auth/authOptions";
-import axios from "axios";
-import { CalendarEvent } from "@/models/calendarEvents";
-import prisma from "../../_db/db";
+import prisma from "@/app/api/_db/db";
 
 export async function GET(
   req: NextRequest,

@@ -95,7 +95,6 @@ const useAuth = () => {
 
   const signOut = useCallback(async () => {
     try {
-      debugger;
       EventTracker.track("User signed out");
       await signOutAuth({ callbackUrl: "/" });
       dispatch(clearUser());
@@ -113,7 +112,7 @@ const useAuth = () => {
     try {
       EventTracker.track("User deleted");
       await axios.delete("/api/user");
-      await signOutAuth();
+      await signOutAuth({ callbackUrl: "/" });
       dispatch(clearUser());
       localStorage.clear();
     } catch (error: any) {

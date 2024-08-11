@@ -15,14 +15,14 @@ const NotificationsProvider = () => {
     const init = async (messaging: Messaging) => {
       await initNotifications();
 
-      onMessage(messaging, payload => {
-        showNotification({
-          title: payload.data?.title ?? "",
-          body: payload.data?.body ?? "",
-          image: payload.data?.image ?? "",
-          type: payload.data?.type as NotificationType,
-        });
-      });
+      // onMessage(messaging, payload => {
+      //   showNotification({
+      //     title: payload.data?.title ?? "",
+      //     body: payload.data?.body ?? "",
+      //     image: payload.data?.image ?? "",
+      //     type: payload.data?.type as NotificationType,
+      //   });
+      // });
     };
     if (messaging && user?.settings.showNotifications) {
       init(messaging);
