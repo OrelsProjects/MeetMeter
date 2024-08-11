@@ -86,13 +86,18 @@ messaging.onBackgroundMessage(payload => {
 });
 
 self.addEventListener("notificationclick", event => {
+  let promise;
   try {
     switch (event.action) {
       case "event-rate-bad":
-        sendResponseToServer("bad", 2, event.notification.data.eventResponseId);
+        promise = sendResponseToServer(
+          "bad",
+          2,
+          event.notification.data.eventResponseId,
+        );
         break;
       case "event-rate-good":
-        sendResponseToServer(
+        promise = sendResponseToServer(
           "good",
           3,
           event.notification.data.eventResponseId,
@@ -106,7 +111,16 @@ self.addEventListener("notificationclick", event => {
         }
         break;
     }
-
+    promise
+      .then(() => {
+        console.log("Response sent to server");
+      })
+      .catch(error => {
+        console.error(
+          "Error in sending response to server",
+          JSON.stringify(error),
+        );
+      });
     // close notification after click
     event.notification.close();
   } catch (error) {
@@ -122,17 +136,11 @@ function sendResponseToServer(response, rating, eventResponseId) {
     rating,
   };
 
-  fetch(postUrl, {
+  return fetch(postUrl, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(postData),
-  })
-    .then(data => {
-      console.log("Success:", data);
-    })
-    .catch(error => {
-      console.error("Error:", error);
-    });
+  });
 }
