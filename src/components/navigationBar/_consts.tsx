@@ -30,7 +30,6 @@ export const BottomBarItems: NavigationBarItem[] = [
     iconActive: () => <BiSolidCalendarEvent className={classNameActive} />,
     label: "Events",
     href: "/events",
-    roleRequired: "admin",
   },
   {
     icon: () => <IoStatsChartOutline className={className} />,
