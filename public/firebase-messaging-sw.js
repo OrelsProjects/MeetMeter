@@ -118,9 +118,11 @@ function sendResponseToServer(response, rating, eventResponseId) {
   const postUrl = `api/eventResponse/${eventResponseId}/response`;
 
   const postData = {
-    response: response || "good",
-    rating: rating || 3,
-    comments: "from-notification",
+    response: {
+      response: response || "good",
+      rating: rating || 3,
+      comments: "from-notification",
+    },
   };
 
   fetch(postUrl, {
