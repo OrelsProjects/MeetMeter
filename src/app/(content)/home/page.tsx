@@ -79,7 +79,7 @@ const ResponsePage = () => {
                           className="shadow-none self-center border-none p-0 !h-fit"
                           showText={false}
                         />
-                        <p>{response.comments}</p>
+                        <p>{response.response || ""}</p>
                       </>
                     )
                   ) : (
