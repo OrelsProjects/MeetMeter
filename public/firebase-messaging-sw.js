@@ -4,13 +4,13 @@ importScripts(
 );
 
 const firebaseConfig = {
-  apiKey: "AIzaSyALZvbmwKVBUXia4-u2Wv__C6ST6GFbBUQ",
-  authDomain: "myworkout-ca350.firebaseapp.com",
-  projectId: "myworkout-ca350",
-  storageBucket: "myworkout-ca350.appspot.com",
-  messagingSenderId: "334976118267",
-  appId: "1:334976118267:web:2547d2f91a0235d1aa2f5e",
-  measurementId: "G-BTFG0DLT3J",
+  apiKey: "AIzaSyALRNz_yZzbiMO_AuF1k2b9kKC70NUjBYs",
+  authDomain: "meetmeter-baff2.firebaseapp.com",
+  projectId: "meetmeter-baff2",
+  storageBucket: "meetmeter-baff2.appspot.com",
+  messagingSenderId: "661315757732",
+  appId: "1:661315757732:web:97857b8f1fdacf2b88e831",
+  measurementId: "G-E0LSGQBZ4B",
 };
 
 // Initialize Firebase
@@ -25,96 +25,102 @@ class CustomPushEvent extends Event {
 }
 
 self.addEventListener("push", e => {
-  if (e.custom) return;
-  const oldData = e.data;
-  const newEvent = new CustomPushEvent({
-    data: {
-      json() {
-        const newData = oldData.json();
-        newData.data = { ...newData.data, ...newData.notification };
-        delete newData.notification;
-        return newData;
+  try {
+    console.log("event", JSON.stringify(e));
+    if (e.custom) return;
+    const oldData = e.data;
+    const newEvent = new CustomPushEvent({
+      data: {
+        json() {
+          const newData = oldData.json();
+          newData.data = { ...newData.data, ...newData.notification };
+          delete newData.notification;
+          return newData;
+        },
       },
-    },
-    waitUntil: e.waitUntil.bind(e),
-  });
-  e.stopImmediatePropagation();
-  dispatchEvent(newEvent);
+      waitUntil: e.waitUntil.bind(e),
+    });
+    console.log("newEvent", JSON.stringify(newEvent));
+    e.stopImmediatePropagation();
+    dispatchEvent(newEvent);
+  } catch (error) {
+    console.error("Error in push event", JSON.stringify(error));
+  }
 });
 
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage(payload => {
-  const { title, body, icon, badge, userId, type, ...restPayload } =
-    payload.data;
+  try {
+    console.log("Received background message ", JSON.stringify(payload));
+    const { title, body, icon, badge, userId, type, ...restPayload } =
+      payload.data;
 
-  // Define the default notification options
-  const notificationOptions = {
-    body,
-    icon,
-    badge,
-    data: { userId, ...restPayload },
-    tag: restPayload.tag || "pinky-partner",
-  };
+    // Define the default notification options
+    const notificationOptions = {
+      body: body || "",
+      icon: icon || "",
+      badge: badge || "",
+      data: { userId, ...restPayload },
+      tag: restPayload.tag || "meet-meter",
+    };
 
-  // Check the type and conditionally add the action
-  if (type === "obligation") {
+    // Check the type and conditionally add the action
+
     notificationOptions.actions = [
       {
-        action: "sendGoodJob",
-        title: "Send Good Job",
+        action: "event-rate-bad",
+        title: "Bad",
       },
-    ];
-  } else if (type === "nudge") {
-    notificationOptions.actions = [
       {
-        action: "responseNudge",
-        title: "I'm on it!",
+        action: "event-rate-good",
+        title: "Good",
       },
     ];
+
+    // Display the notification
+    self.registration.showNotification(title, notificationOptions);
+  } catch (error) {
+    console.error("Error in background message", JSON.stringify(error));
   }
-
-  // Display the notification
-  self.registration.showNotification(title, notificationOptions);
 });
 
 self.addEventListener("notificationclick", event => {
-  // Handle action button click
-  if (event.action === "sendGoodJob") {
-    sendResponseToServer(
-      event.notification.data.toUserId,
-      event.notification.data.fromName,
-      "goodJob",
-    );
-  } else if (event.action === "responseNudge") {
-    sendResponseToServer(
-      event.notification.data.toUserId,
-      event.notification.data.fromName,
-      "nudge",
-    );
-  } else if (event.notification.data && event.notification.data.click_action) {
-    // Handle other notification click actions
-    self.clients.openWindow(event.notification.data.click_action);
-  } else {
-    // Default action: open application
-    self.clients.openWindow(event.currentTarget.origin);
+  try {
+    switch (event.action) {
+      case "event-rate-bad":
+        sendResponseToServer("bad", event.notification.data.eventResponseId);
+        break;
+      case "event-rate-good":
+        sendResponseToServer("good", event.notification.data.eventResponseId);
+        break;
+      case "event-rate-excellent":
+        sendResponseToServer(
+          "excellent",
+          event.notification.data.eventResponseId,
+        );
+        break;
+      default:
+        if (event.notification.data && event.notification.data.click_action) {
+          self.clients.openWindow(event.notification.data.click_action);
+        } else {
+          self.clients.openWindow(event.currentTarget.origin);
+        }
+        break;
+    }
+
+    // close notification after click
+    event.notification.close();
+  } catch (error) {
+    console.error("Error in notification click", JSON.stringify(error));
   }
-  event.notification.close();
 });
 
-function sendResponseToServer(toUserId, fromName, type) {
-  const postUrl = "api/notifications";
+function sendResponseToServer(response, eventResponseId) {
+  const postUrl = `api/eventResponse/${eventResponseId}/response`;
   const postData = {
-    title: "Good job!",
-    body: fromName + " is proud of you!",
-    userId: toUserId,
-    type: "response",
+    response,
   };
-
-  if (type === "nudge") {
-    postData.title = fromName + " is on it!";
-    postData.body = fromName + " is working on their goal.";
-  }
 
   fetch(postUrl, {
     method: "POST",
