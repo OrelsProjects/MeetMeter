@@ -95,6 +95,8 @@ export default function AuthProvider({
         !pathname.includes("/login") &&
         !pathname.includes("/register") &&
         pathname !== "/"
+        && !pathname.includes("/privacy")
+        && !pathname.includes("/tos")
       ) {
         router.push("/login");
       }

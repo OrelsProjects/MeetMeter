@@ -1,11 +1,9 @@
-"use client";
-
 import Link from "next/link";
 import React from "react";
 
 function PrivacyPolicy() {
   return (
-    <div className="container mx-auto pb-8 px-4 text-foreground rounded-lg overflow-auto">
+    <div className="container mx-auto pb-8 px-4 text-foreground rounded-lg overflow-auto py-8">
       {/* Heading */}
       <h1 className="text-3xl font-bold mb-2 text-foreground dark:text-foreground">
         Privacy Policy
@@ -35,8 +33,29 @@ function PrivacyPolicy() {
           Information We Collect
         </h2>
         <ul className="list-disc text-foreground font-light pl-5">
-          <li>Account Information: email, name, calendar details</li>
+          <li>Account Information: email, name, calendar details.</li>
+          <li>Calendar Data: We collect details of your meetings, including the organizer, attendees, and timestamps, to provide personalized services and functionalities.</li>
         </ul>
+      </section>
+
+      {/* Google API and OAuth section */}
+      <section className="mb-8">
+        <h2 className="text-2xl font-medium mb-2 text-foreground dark:text-foreground">
+          Google API and OAuth Consent
+        </h2>
+        <p className="text-foreground font-light">
+          Our service integrates with Google APIs, and we use OAuth 2.0 to request access to your calendar data. We specifically request scopes that allow us to read calendar events to enhance service functionality. You can manage or revoke our access at any time through Google&apos;s security settings.
+        </p>
+      </section>
+
+      {/* User Rights section */}
+      <section className="mb-8">
+        <h2 className="text-2xl font-medium mb-2 text-foreground dark:text-foreground">
+          Your Rights
+        </h2>
+        <p className="text-foreground font-light">
+          You have the right to access, correct, or delete your personal information. You can also revoke our access to your data at any time by deleting your account or through your Google account settings.
+        </p>
       </section>
 
       {/* Data usage section */}
@@ -59,7 +78,7 @@ function PrivacyPolicy() {
           Sharing Your Information
         </h2>
         <p className="text-foreground font-light">
-          We do not share any of your information with anyone.
+          We do not share any of your information with anyone, except as necessary to provide the Services or as required by law.
         </p>
       </section>
 
@@ -69,8 +88,7 @@ function PrivacyPolicy() {
           Contact Us
         </h2>
         <p className="text-foreground font-light">
-          If you have any questions about this Privacy Policy, please contact us
-          at:
+          If you have any questions about this Privacy Policy, please contact us at:
         </p>
         <Link
           href="mailto:orelsmail@gmail.com"

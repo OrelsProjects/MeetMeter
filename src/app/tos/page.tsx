@@ -1,11 +1,9 @@
-"use client";
-
 import Link from "next/link";
 import React from "react";
 
 function TermsOfService() {
   return (
-    <div className="container mx-auto pb-8 px-4 text-foreground rounded-lg overflow-auto">
+    <div className="container mx-auto pb-8 px-4 text-foreground rounded-lg overflow-auto pt-8">
       {/* Heading */}
       <h1 className="text-3xl font-bold mb-2 text-foreground dark:text-foreground">
         Terms of Service
@@ -23,9 +21,11 @@ function TermsOfService() {
         </h2>
         <p className="text-foreground font-light">
           These Terms of Service (&quot;Terms&quot;) govern your access to and use of our
-          website and services (&quot;Services&quot;) provided by MeetMeter (&quot;we&quot;,
-          &quot;us&quot;, or &quot;our&quot;). By accessing or using our Services, you agree to be
-          bound by these Terms and our Privacy Policy.
+          website and services (&quot;Services&quot; ) provided by MeetMeter
+          (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;). By accessing or using our Services, you agree
+          to be bound by these Terms and our Privacy Policy, including any
+          additional terms and conditions and policies referenced herein and/or
+          available by hyperlink.
         </p>
       </section>
 
@@ -35,9 +35,21 @@ function TermsOfService() {
           Account Terms
         </h2>
         <ul className="list-disc text-foreground font-light pl-5">
-          <li>You must provide your legal full name, a valid email address, and any other information requested in order to complete the signup process.</li>
-          <li>You are responsible for maintaining the security of your account and password. We cannot and will not be liable for any loss or damage from your failure to comply with this security obligation.</li>
-          <li>You are responsible for all content posted and activity that occurs under your account.</li>
+          <li>
+            You must provide your legal full name, a valid email address, and
+            any other information requested in order to complete the signup
+            process.
+          </li>
+          <li>
+            You are responsible for maintaining the security of your account and
+            password. We cannot and will not be liable for any loss or damage
+            from your failure to comply with this security obligation.
+          </li>
+          <li>
+            You are responsible for all content posted and activity that occurs
+            under your account (even when content is posted by others who have
+            accounts under your account).
+          </li>
         </ul>
       </section>
 
@@ -47,8 +59,15 @@ function TermsOfService() {
           Usage Rights
         </h2>
         <ul className="list-disc text-foreground font-light pl-5">
-          <li>You are granted a limited, non-exclusive, non-transferable right to use the Services according to the terms of these Terms and our Privacy Policy.</li>
-          <li>All rights not expressly granted to you are reserved by MeetMeter and its licensors.</li>
+          <li>
+            You are granted a limited, non-exclusive, non-transferable right to
+            use the Services according to the terms of these Terms and our
+            Privacy Policy.
+          </li>
+          <li>
+            All rights not expressly granted to you are reserved by MeetMeter
+            and its licensors.
+          </li>
         </ul>
       </section>
 
@@ -58,8 +77,14 @@ function TermsOfService() {
           Restrictions
         </h2>
         <ul className="list-disc text-foreground font-light pl-5">
-          <li>You may not use the Services for any illegal or unauthorized purpose.</li>
-          <li>You must not, in the use of the Services, violate any laws in your jurisdiction.</li>
+          <li>
+            You may not use the Services for any illegal or unauthorized
+            purpose.
+          </li>
+          <li>
+            You must not, in the use of the Services, violate any laws in your
+            jurisdiction (including but not limited to copyright laws).
+          </li>
         </ul>
       </section>
 
@@ -69,10 +94,26 @@ function TermsOfService() {
           Termination
         </h2>
         <p className="text-foreground font-light">
-          We may terminate or suspend your account and bar access to the Services
-          immediately, without prior notice or liability, under our sole
-          discretion, for any reason whatsoever and without limitation,
-          including but not limited to a breach of the Terms.
+          We may terminate or suspend your account and bar access to the
+          Services immediately, without prior notice or liability, under our
+          sole discretion, for any reason whatsoever and without limitation,
+          including but not limited to a breach of the Terms. Upon termination,
+          your right to use the Services will immediately cease. If you wish to
+          terminate your account, you may simply discontinue using the Services.
+        </p>
+      </section>
+
+      {/* Amendments and Updates */}
+      <section className="mb-8">
+        <h2 className="text-2xl font-medium mb-2 text-foreground dark:text-foreground">
+          Amendments and Updates
+        </h2>
+        <p className="text-foreground font-light">
+          We reserve the right, at our sole discretion, to modify or replace
+          these Terms at any time. If a revision is material, we will provide at
+          least 30 days&apos; notice prior to any new terms taking effect. What
+          constitutes a material change will be determined at our sole
+          discretion.
         </p>
       </section>
 
