@@ -91,7 +91,11 @@ export default function AuthProvider({
         router.push("/home");
       }
     } else {
-      if (!pathname.includes("/login") && !pathname.includes("/register")) {
+      if (
+        !pathname.includes("/login") &&
+        !pathname.includes("/register") &&
+        pathname !== "/"
+      ) {
         router.push("/login");
       }
     }
