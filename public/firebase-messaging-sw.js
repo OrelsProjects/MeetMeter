@@ -45,14 +45,15 @@ self.addEventListener("push", e => {
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage(payload => {
+  console.log("Received background message ", payload);
   const { title, body, icon, badge, userId, type, ...restPayload } =
     payload.data;
 
   // Define the default notification options
   const notificationOptions = {
-    body,
-    icon,
-    badge,
+    body: body || "",
+    icon: icon || "",
+    badge: badge || "",
     data: { userId, ...restPayload },
     tag: restPayload.tag || "meet-meter",
   };
@@ -68,10 +69,6 @@ messaging.onBackgroundMessage(payload => {
       action: "event-rate-good",
       title: "Good",
     },
-    {
-      action: "event-rate-excellent",
-      title: "Excellent",
-    },
   ];
 
   // Display the notification
@@ -81,16 +78,10 @@ messaging.onBackgroundMessage(payload => {
 self.addEventListener("notificationclick", event => {
   switch (event.action) {
     case "event-rate-bad":
-      sendResponseToServer(
-        "bad",
-        event.notification.data.eventResponseId,
-      );
+      sendResponseToServer("bad", event.notification.data.eventResponseId);
       break;
     case "event-rate-good":
-      sendResponseToServer(
-        "good",
-        event.notification.data.eventResponseId,
-      );
+      sendResponseToServer("good", event.notification.data.eventResponseId);
       break;
     case "event-rate-excellent":
       sendResponseToServer(
