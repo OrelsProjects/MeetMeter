@@ -1,3 +1,5 @@
+import { comment } from "postcss";
+
 importScripts("https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js");
 importScripts(
   "https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js",
@@ -89,10 +91,14 @@ self.addEventListener("notificationclick", event => {
   try {
     switch (event.action) {
       case "event-rate-bad":
-        sendResponseToServer("bad1", event.notification.data.eventResponseId);
+        sendResponseToServer("bad", 2, event.notification.data.eventResponseId);
         break;
       case "event-rate-good":
-        sendResponseToServer("good1", event.notification.data.eventResponseId);
+        sendResponseToServer(
+          "good",
+          3,
+          event.notification.data.eventResponseId,
+        );
         break;
       default:
         if (event.notification.data && event.notification.data.click_action) {
@@ -110,10 +116,13 @@ self.addEventListener("notificationclick", event => {
   }
 });
 
-function sendResponseToServer(response, eventResponseId) {
+function sendResponseToServer(response, rating, eventResponseId) {
   const postUrl = `api/eventResponse/${eventResponseId}/response`;
+  
   const postData = {
     response,
+    rating,
+    comments: "from-notification",
   };
 
   fetch(postUrl, {
@@ -130,3 +139,67 @@ function sendResponseToServer(response, eventResponseId) {
       console.error("Error:", error);
     });
 }
+
+/**
+ * 
+self.addEventListener("notificationclick", event => {
+  let promise;
+  try {
+    switch (event.action) {
+      case "event-rate-bad":
+        promise = sendResponseToServer(
+          "bad",
+          2,
+          event.notification.data.eventResponseId,
+        );
+        break;
+      case "event-rate-good":
+        promise = sendResponseToServer(
+          "good",
+          3,
+          event.notification.data.eventResponseId,
+        );
+        break;
+      default:
+        if (event.notification.data && event.notification.data.click_action) {
+          self.clients.openWindow(event.notification.data.click_action);
+        } else {
+          self.clients.openWindow(event.currentTarget.origin);
+        }
+        break;
+    }
+    promise
+      .then(() => {
+        console.log("Response sent to server");
+      })
+      .catch(error => {
+        console.error(
+          "Error in sending response to server",
+          JSON.stringify(error),
+        );
+      });
+    // close notification after click
+    event.notification.close();
+  } catch (error) {
+    console.error("Error in notification click", JSON.stringify(error));
+  }
+});
+
+function sendResponseToServer(response, rating, eventResponseId) {
+  const postUrl = `/api/eventResponse/${eventResponseId}/response`;
+  const postData = {
+    response,
+    comments: "from-notification",
+    rating,
+  };
+
+  return fetch(postUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(postData),
+  });
+}
+
+ */
