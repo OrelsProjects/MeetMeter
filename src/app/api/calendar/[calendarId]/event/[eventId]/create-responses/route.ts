@@ -127,7 +127,7 @@ export async function POST(
       },
       update: eventData,
       where: {
-        eventId
+        eventId,
       },
     });
 
@@ -136,6 +136,7 @@ export async function POST(
         data: users.map(user => ({
           responseEventId: responseEvent.id,
           userId: user.id,
+          email: user.email,
         })),
         skipDuplicates: true,
       }),
@@ -154,6 +155,7 @@ export async function POST(
         data: {
           responseEventId: responseEvent.id,
           userId: session.user.userId,
+          email: session.user.email,
         },
         skipDuplicates: true,
       }),

@@ -86,6 +86,7 @@ export async function POST(
       data: {
         responseEventId: responseEvent.id,
         userId: session.user.userId,
+        email: session.user.email,
       },
     });
 
