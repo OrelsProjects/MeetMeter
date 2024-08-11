@@ -94,11 +94,11 @@ const ResponsePage = ({ params }: { params: { responseId: string } }) => {
 
   const formik = useFormik({
     initialValues: {
-      comments: "",
+      response: "",
       rating: null,
     },
     validationSchema: Yup.object({
-      comments: Yup.string(),
+      response: Yup.string(),
       rating: Yup.number()
         .required("Rating is required")
         .min(1, "Rating is required"),
@@ -107,8 +107,8 @@ const ResponsePage = ({ params }: { params: { responseId: string } }) => {
       await toast.promise(
         sendResponse(params.responseId, {
           rating: values.rating,
+          response: values.response,
           comments: "from-web",
-          response: values.comments,
         }),
         {
           pending: "Sending response...",
@@ -130,8 +130,8 @@ const ResponsePage = ({ params }: { params: { responseId: string } }) => {
       setEvent(data.responseEvent);
       setUserResponse(data.userResponse);
 
-      if (!formik.values.comments) {
-        formik.setFieldValue("comments", data.userResponse.comments || "");
+      if (!formik.values.response) {
+        formik.setFieldValue("response", data.userResponse.response || "");
       }
       if (!formik.values.rating) {
         formik.setFieldValue("rating", data.userResponse.rating);
@@ -157,8 +157,8 @@ const ResponsePage = ({ params }: { params: { responseId: string } }) => {
 
   const isResponseUpdated = useMemo(() => {
     return (
-      (formik.values.comments &&
-        formik.values.comments !== userResponse?.comments) ||
+      (formik.values.response &&
+        formik.values.response !== userResponse?.response) ||
       (formik.values.rating && formik.values.rating !== userResponse?.rating)
     );
   }, [formik.values, userResponse]);
@@ -204,11 +204,11 @@ const ResponsePage = ({ params }: { params: { responseId: string } }) => {
       )}
       <Comments
         loading={loadingFetch}
-        value={formik.values.comments}
-        onChange={value => formik.setFieldValue("comments", value)}
+        value={formik.values.response}
+        onChange={value => formik.setFieldValue("response", value)}
         error={
-          formik.errors.comments && formik.touched.comments
-            ? formik.errors.comments
+          formik.errors.response && formik.touched.response
+            ? formik.errors.response
             : undefined
         }
       />
