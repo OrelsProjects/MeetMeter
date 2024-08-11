@@ -45,7 +45,7 @@ self.addEventListener("push", e => {
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage(payload => {
-  console.log("Received background message ", payload);
+  console.log("Received background message ", JSON.stringify(payload));
   const { title, body, icon, badge, userId, type, ...restPayload } =
     payload.data;
 
