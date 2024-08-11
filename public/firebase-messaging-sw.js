@@ -86,22 +86,13 @@ messaging.onBackgroundMessage(payload => {
 });
 
 self.addEventListener("notificationclick", event => {
-  let promise;
   try {
     switch (event.action) {
       case "event-rate-bad":
-        promise = sendResponseToServer(
-          "bad",
-          2,
-          event.notification.data.eventResponseId,
-        );
+        sendResponseToServer("bad1", event.notification.data.eventResponseId);
         break;
       case "event-rate-good":
-        promise = sendResponseToServer(
-          "good",
-          3,
-          event.notification.data.eventResponseId,
-        );
+        sendResponseToServer("good1", event.notification.data.eventResponseId);
         break;
       default:
         if (event.notification.data && event.notification.data.click_action) {
@@ -111,16 +102,7 @@ self.addEventListener("notificationclick", event => {
         }
         break;
     }
-    promise
-      .then(() => {
-        console.log("Response sent to server");
-      })
-      .catch(error => {
-        console.error(
-          "Error in sending response to server",
-          JSON.stringify(error),
-        );
-      });
+
     // close notification after click
     event.notification.close();
   } catch (error) {
@@ -128,19 +110,23 @@ self.addEventListener("notificationclick", event => {
   }
 });
 
-function sendResponseToServer(response, rating, eventResponseId) {
-  const postUrl = `/api/eventResponse/${eventResponseId}/response`;
+function sendResponseToServer(response, eventResponseId) {
+  const postUrl = `api/eventResponse/${eventResponseId}/response`;
   const postData = {
     response,
-    comments: "from-notification",
-    rating,
   };
 
-  return fetch(postUrl, {
+  fetch(postUrl, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(postData),
-  });
+  })
+    .then(data => {
+      console.log("Success:", data);
+    })
+    .catch(error => {
+      console.error("Error:", error);
+    });
 }
