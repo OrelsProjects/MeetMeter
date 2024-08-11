@@ -24,8 +24,6 @@ export default function useResponse() {
   const loadingSendRef = useRef(false);
 
   const getUserEventResponses = async () => {
-    if (userEventResponses && userEventResponses.length > 0)
-      return userEventResponses;
     if (loadingFetchRef.current) throw new LoadingError("Loading...");
     loadingFetchRef.current = true;
     setLoadingFetch(true);
