@@ -152,7 +152,7 @@ const EventComponent = ({
   );
 
   const Content = () => (
-    <div className="w-full h-fit flex flex-row items-center gap-4">
+    <div className={"w-full h-fit flex flex-row items-center gap-4"}>
       <div
         className={cn(
           "w-80 h-28 flex flex-col gap-0.5 p-2 rounded-lg text-secondary-foreground transition-all duration-500",
@@ -164,26 +164,28 @@ const EventComponent = ({
         <h1 className="font-semibold line-clamp-2">{event.summary}</h1>
         <p className="font-light text-sm">{TimeRange}</p>
       </div>
-      <div className="w-10 h-10">
-        {canNotify && (
+      <div className={cn("flex flex-row gap-4", {"flex-row-reverse": !canNotify})}>
+        <div className="w-10 h-10">
+          {canNotify && (
+            <Button
+              variant="ghost"
+              className="px-1"
+              onClick={notifyUsers}
+              disabled={disabled}
+            >
+              <IoMdNotifications className="h-8 w-8 fill-primary" />
+            </Button>
+          )}
+        </div>
+        <div className="w-10 h-10">
           <Button
             variant="ghost"
-            className="px-1"
-            onClick={notifyUsers}
-            disabled={disabled}
+            className="p-2"
+            onClick={() => handleCreateResponse()}
           >
-            <IoMdNotifications className="h-8 w-8 fill-primary" />
+            <VscFeedback className="h-8 w-8 fill-foregroung" />
           </Button>
-        )}
-      </div>
-      <div className="w-10 h-10">
-        <Button
-          variant="ghost"
-          className="p-2"
-          onClick={() => handleCreateResponse()}
-        >
-          <VscFeedback className="h-8 w-8 fill-foregroung" />
-        </Button>
+        </div>
       </div>
     </div>
   );
