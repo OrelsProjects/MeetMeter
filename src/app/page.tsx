@@ -10,7 +10,7 @@ export default function Home() {
   const router = useRouter();
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-8 px-72 md:p-24 md:px-[24rem] gap-10">
+    <main className="flex min-h-screen flex-col items-center justify-center p-8 md:p-24 md:px-[24rem] gap-10">
       <div className="w-full flex flex-row justify-center items-center">
         <Image
           src="/favicon.png"
@@ -22,7 +22,7 @@ export default function Home() {
           MeetMeter
         </h1>
       </div>
-      <h1 className="text-3xl tracking-wide">
+      <h1 className="text-xl md:text-3xl tracking-wide">
         Choose the<strong> meetings </strong>you want to <strong>track</strong>
         <br /> and get<strong> feedback </strong>from your{" "}
         <strong>employees!</strong>
