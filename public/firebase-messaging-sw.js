@@ -45,61 +45,69 @@ self.addEventListener("push", e => {
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage(payload => {
-  console.log("Received background message ", JSON.stringify(payload));
-  const { title, body, icon, badge, userId, type, ...restPayload } =
-    payload.data;
+  try {
+    console.log("Received background message ", JSON.stringify(payload));
+    const { title, body, icon, badge, userId, type, ...restPayload } =
+      payload.data;
 
-  // Define the default notification options
-  const notificationOptions = {
-    body: body || "",
-    icon: icon || "",
-    badge: badge || "",
-    data: { userId, ...restPayload },
-    tag: restPayload.tag || "meet-meter",
-  };
+    // Define the default notification options
+    const notificationOptions = {
+      body: body || "",
+      icon: icon || "",
+      badge: badge || "",
+      data: { userId, ...restPayload },
+      tag: restPayload.tag || "meet-meter",
+    };
 
-  // Check the type and conditionally add the action
+    // Check the type and conditionally add the action
 
-  notificationOptions.actions = [
-    {
-      action: "event-rate-bad",
-      title: "Bad",
-    },
-    {
-      action: "event-rate-good",
-      title: "Good",
-    },
-  ];
+    notificationOptions.actions = [
+      {
+        action: "event-rate-bad",
+        title: "Bad",
+      },
+      {
+        action: "event-rate-good",
+        title: "Good",
+      },
+    ];
 
-  // Display the notification
-  self.registration.showNotification(title, notificationOptions);
+    // Display the notification
+    self.registration.showNotification(title, notificationOptions);
+  } catch (error) {
+    console.error("Error in background message", JSON.stringify(error));
+  }
 });
 
 self.addEventListener("notificationclick", event => {
-  switch (event.action) {
-    case "event-rate-bad":
-      sendResponseToServer("bad", event.notification.data.eventResponseId);
-      break;
-    case "event-rate-good":
-      sendResponseToServer("good", event.notification.data.eventResponseId);
-      break;
-    case "event-rate-excellent":
-      sendResponseToServer(
-        "excellent",
-        event.notification.data.eventResponseId,
-      );
-      break;
-    default:
-      if (event.notification.data && event.notification.data.click_action) {
-        self.clients.openWindow(event.notification.data.click_action);
-      } else {
-        self.clients.openWindow(event.currentTarget.origin);
-      }
-      break;
-  }
+  try {
+    switch (event.action) {
+      case "event-rate-bad":
+        sendResponseToServer("bad", event.notification.data.eventResponseId);
+        break;
+      case "event-rate-good":
+        sendResponseToServer("good", event.notification.data.eventResponseId);
+        break;
+      case "event-rate-excellent":
+        sendResponseToServer(
+          "excellent",
+          event.notification.data.eventResponseId,
+        );
+        break;
+      default:
+        if (event.notification.data && event.notification.data.click_action) {
+          self.clients.openWindow(event.notification.data.click_action);
+        } else {
+          self.clients.openWindow(event.currentTarget.origin);
+        }
+        break;
+    }
 
-  // close notification after click
-  event.notification.close();
+    // close notification after click
+    event.notification.close();
+  } catch (error) {
+    console.error("Error in notification click", JSON.stringify(error));
+  }
 });
 
 function sendResponseToServer(response, eventResponseId) {
