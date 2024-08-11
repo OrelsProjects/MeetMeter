@@ -147,7 +147,7 @@ const EventComponent = ({
   }, [event.start.dateTime, event.end.dateTime]);
 
   const disabled = useMemo(
-    () => false && event.canNotifyAt !== "now",
+    () => event.canNotifyAt !== "now",
     [event.canNotifyAt],
   );
 
