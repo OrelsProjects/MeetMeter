@@ -58,8 +58,11 @@ export async function POST(req: NextRequest): Promise<NextResponse<any>> {
       );
     }
 
-   await sendNotification({
-      token: user.meta?.pushTokenMobile || user.meta?.pushToken || "",
+    await sendNotification({
+      token: {
+        mobile: user.meta?.pushTokenMobile || "",
+        web: user.meta?.pushToken || "",
+      },
       userId: user.id,
       title,
       type,

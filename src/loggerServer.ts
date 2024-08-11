@@ -1,7 +1,6 @@
 import { createLogger, format, transports } from "winston";
 import { LogItem } from "./logger";
 
-
 interface Logger {
   debug: (message: string, user_id: string, data?: LogItem) => void;
   info: (message: string, user_id: string, data?: LogItem) => void;
@@ -27,7 +26,7 @@ const logger: () => Logger = () => {
     level: "info" | "error" | "warn" | "debug",
     message: string,
     user_id: string,
-    data?: LogItem
+    data?: LogItem,
   ) => {
     try {
       _logger.log(level, message, {
@@ -38,8 +37,21 @@ const logger: () => Logger = () => {
     } catch (error: any) {
       console.log("Error logging", error);
     }
-    if (process.env.NODE_ENV !== "production") {
-      console.log(message, user_id, data);
+    switch (level) {
+      case "error":
+        console.error(message, user_id, data);
+        break;
+      case "warn":
+        console.warn(message, user_id, data);
+        break;
+      case "info":
+        console.info(message, user_id, data);
+        break;
+      case "debug":
+        console.debug(message, user_id, data);
+        break;
+      default:
+        console.log(message, user_id, data);
     }
   };
 

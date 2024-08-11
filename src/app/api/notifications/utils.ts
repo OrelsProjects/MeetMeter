@@ -66,7 +66,7 @@ export async function sendNotification(options: {
   try {
     await messaging.send({
       ...message,
-      token: token.web || "",
+      token: token.mobile || "",
     });
 
     loggerServer.info("Notification sent", userId, {
