@@ -18,9 +18,9 @@ export async function POST(
     );
   }
   try {
-    console.log("fix notifications");
     const { id } = params;
     const { response }: { response: SendUserResponse } = await req.json();
+    console.log("response", JSON.stringify(response, null, 2));
     const respondAt = new Date();
 
     const userResponse = await prisma.userResponse.upsert({
