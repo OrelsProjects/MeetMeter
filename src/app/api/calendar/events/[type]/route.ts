@@ -10,19 +10,6 @@ import loggerServer from "../../../../../loggerServer";
 
 type DateType = "day" | "week" | "month";
 
-const getStartDate = (type: DateType) => {
-  switch (type) {
-    case "day":
-      return moment().startOf("day").toISOString();
-    case "week":
-      return moment().startOf("week").toISOString();
-    case "month":
-      return moment().startOf("month").toISOString();
-    default:
-      return moment().startOf("day").toISOString();
-  }
-};
-
 export async function GET(
   req: NextRequest,
   { params }: { params: { type: DateType } },

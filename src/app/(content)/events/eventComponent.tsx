@@ -66,7 +66,7 @@ const EventComponent = ({
   defaultForegroundColor?: string;
 }) => {
   const router = useRouter();
-  const { user } = useAppSelector(state => state.auth);
+  const { user, isAdmin } = useAppSelector(state => state.auth);
   const { notifyUsersForFeedback, createResponseForUser } = useEvent();
 
   const handleCreateResponse = async () => {
@@ -129,7 +129,7 @@ const EventComponent = ({
   }, [colorClassname, defaultBackgroundColor, defaultForegroundColor]);
 
   const canNotify = useMemo(() => {
-    if (event.organizer.email === user?.email) return !!notify;
+    if (isAdmin && event.organizer.email === user?.email) return !!notify;
     return false;
   }, [event.organizer.email, user?.email]);
 
@@ -164,7 +164,11 @@ const EventComponent = ({
         <h1 className="font-semibold line-clamp-2">{event.summary}</h1>
         <p className="font-light text-sm">{TimeRange}</p>
       </div>
-      <div className={cn("flex flex-row gap-4", {"flex-row-reverse": !canNotify})}>
+      <div
+        className={cn("flex flex-row gap-4", {
+          "flex-row-reverse": !canNotify,
+        })}
+      >
         <div className="w-10 h-10">
           {canNotify && (
             <Button

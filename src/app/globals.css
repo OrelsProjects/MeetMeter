@@ -160,25 +160,25 @@
     @apply shimmer-wrapper-primary dark:shimmer-wrapper-dark-primary;
   }
   /* Apply padding to respect safe area insets */
-  p-safe {
+  .p-safe {
     padding: env(safe-area-inset-top) env(safe-area-inset-right)
       env(safe-area-inset-bottom) env(safe-area-inset-left);
   }
 
   /* Specific sides */
-  pt-safe {
+  .pt-safe {
     padding-top: env(safe-area-inset-top);
   }
 
-  pb-safe {
+  .pb-safe {
     padding-bottom: env(safe-area-inset-bottom);
   }
 
-  pl-safe {
+  .pl-safe {
     padding-left: env(safe-area-inset-left);
   }
 
-  pr-safe {
+  .pr-safe {
     padding-right: env(safe-area-inset-right);
   }
 
