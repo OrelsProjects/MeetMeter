@@ -67,7 +67,7 @@ const Rating = ({
           <div
             key={`rating-${index}`}
             className={cn(
-              "h-20 w-[4.5rem] md:h-24 md:w-[5.5rem] border-[1px] bg-card border-gray-300 rounded-[6px] flex flex-col items-center justify-center hover:shadow-md hover:shadow-secondary transition-all duration-100 cursor-pointer",
+              "h-20 w-[4.5rem] md:h-24 md:w-[5.5rem] border-[1px] bg-card border-gray-300 rounded-[6px] flex flex-col items-center justify-center md:hover:shadow-md md:hover:shadow-secondary transition-all duration-100 cursor-pointer",
               {
                 "border-primary shadow-md shadow-secondary":
                   value === index + 1,
@@ -104,11 +104,11 @@ const ResponsePage = ({ params }: { params: { responseId: string } }) => {
         .min(1, "Rating is required"),
     }),
     onSubmit: async values => {
+      if (!event) return;
       await toast.promise(
-        sendResponse(params.responseId, {
+        sendResponse(event?.eventId, params.responseId, {
           rating: values.rating,
           response: values.response,
-          comments: "from-web",
         }),
         {
           pending: "Sending response...",
@@ -166,7 +166,7 @@ const ResponsePage = ({ params }: { params: { responseId: string } }) => {
   return (
     <form onSubmit={formik.handleSubmit} className="flex flex-col gap-10">
       <div
-        className="w-fit hover:bg-slate-400/40 hover:cursor-pointer rounded-xl p-2 flex flex-row gap-1 justify-center items-center"
+        className="w-fit md:hover:bg-slate-400/40 md:hover:cursor-pointer rounded-xl p-2 flex flex-row gap-1 justify-center items-center"
         onClick={() => router.push("/home")}
       >
         <FaArrowLeftLong className="w-6 h-6" />

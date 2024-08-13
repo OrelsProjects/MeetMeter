@@ -25,12 +25,12 @@ export const BottomBarItems: NavigationBarItem[] = [
     label: "Home",
     href: "/home",
   },
-  {
-    icon: () => <BiCalendarEvent className={className} />,
-    iconActive: () => <BiSolidCalendarEvent className={classNameActive} />,
-    label: "Events",
-    href: "/events",
-  },
+  // {
+  //   icon: () => <BiCalendarEvent className={className} />,
+  //   iconActive: () => <BiSolidCalendarEvent className={classNameActive} />,
+  //   label: "Events",
+  //   href: "/events",
+  // },
   {
     icon: () => <IoStatsChartOutline className={className} />,
     iconActive: () => <IoStatsChart className={classNameActive} />,

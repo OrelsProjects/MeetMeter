@@ -48,10 +48,19 @@ const eventsSlice = createSlice({
     updateResponse: (
       state,
       action: PayloadAction<{
+        eventId: string;
         responseId: string;
         response: UserResponse;
       }>,
     ) => {
+      debugger;
+      const event = state.events?.items.find(
+        event => event.id === action.payload.eventId,
+      );
+      if (event) {
+        event.response = action.payload.response;
+      }
+
       const index = state.userEventResponses.findIndex(
         response => response.responseEventId === action.payload.responseId,
       );

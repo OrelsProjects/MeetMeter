@@ -10,14 +10,16 @@ import {
   selectEvents,
   setEvents,
 } from "../../../lib/features/events/eventsSlice";
-import EventComponent, { LoadingEventComponent } from "./eventComponent";
+import EventComponent, { LoadingEventComponent } from "../home/eventComponent";
 import { Logger } from "../../../logger";
 import moment from "moment";
+import useResponse from "../../../lib/hooks/useResponse";
 
 export default function Home() {
   const dispatch = useAppDispatch();
   const { isAdmin } = useAppSelector(state => state.auth);
   const { events } = useAppSelector(selectEvents);
+  const { sendResponse } = useResponse();
   const [loading, setLoading] = useState(false);
   const loadingRef = useRef(false);
   const [type, setType] = useState<"day" | "week" | "month">("week");
@@ -94,6 +96,31 @@ export default function Home() {
     return `${startOfWeek} - ${endOfWeek}`;
   }, [events]);
 
+  const handleRatingChange = async (
+    eventId: string,
+    value: number,
+    responseEventId?: string,
+  ) => {
+    if (!responseEventId) return;
+    const toastId = toast.loading("Sending response...");
+    try {
+      await sendResponse(eventId, responseEventId, {
+        rating: value,
+        response: null,
+      });
+      getTodaysEvents();
+    } catch (error: any) {
+      Logger.error(error);
+      toast.error(error.message, {
+        type: "error",
+        isLoading: false,
+        autoClose: 2000,
+      });
+    } finally {
+      toast.dismiss(toastId);
+    }
+  };
+
   return (
     <div className="w-full h-full overflow-clip flex flex-col gap-4 justify-between">
       <div className=" w-11/12 md:w-full overflow-y-auto overflow-x-clip flex flex-col gap-6">
@@ -125,6 +152,13 @@ export default function Home() {
                       defaultForegroundColor={calendarForegroundColor}
                       event={event}
                       notify={isAdmin ? { calendarName } : undefined}
+                      onRatingChange={value => {
+                        handleRatingChange(
+                          event.id,
+                          value,
+                          event.response?.responseEventId,
+                        );
+                      }}
                     />
                   </div>
                 ))}

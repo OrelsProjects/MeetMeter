@@ -19,8 +19,10 @@ export async function POST(
   }
   try {
     const { id } = params;
-    const { response }: { response: SendUserResponse } = await req.json();
-    console.log("response", JSON.stringify(response, null, 2));
+    const { response }: { response?: SendUserResponse } = await req.json();
+    if (!response) {
+      return NextResponse.json({ error: "Invalid response" }, { status: 400 });
+    }
     const respondAt = new Date();
 
     const userResponse = await prisma.userResponse.upsert({

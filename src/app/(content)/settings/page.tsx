@@ -142,14 +142,14 @@ const SettingsScreen: React.FC<SettingsProps> = () => {
             <div className="flex flex-col gap-1 pl-2">
               <Button
                 variant="ghost"
-                className="w-fit px-1 md:hover:bg-slate-400/40"
+                className="w-fit px-1 md:md:hover:bg-slate-400/40"
                 onClick={handleSignOut}
               >
                 LOGOUT
               </Button>
               <Button
                 variant="link"
-                className="w-fit px-1 md:hover:bg-destructive/40 md:hover:text-destructive-foreground hover:no-underline text-destructive/60 text-sm"
+                className="w-fit px-1 md:md:hover:bg-destructive/40 md:md:hover:text-destructive-foreground md:hover:no-underline text-destructive/60 text-sm"
                 onClick={handleDeleteUserRequest}
               >
                 DELETE

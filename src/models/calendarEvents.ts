@@ -1,6 +1,11 @@
+import { UserResponse } from "@prisma/client";
+
 export interface CalendarEventMeta {
   canNotifyAt?: Date | "now";
+  response: UserResponse | null;
 }
+
+export type CalendarEventWithMeta = CalendarEvent & CalendarEventMeta;
 
 export interface CalendarEvents {
   kind: string;
@@ -14,7 +19,7 @@ export interface CalendarEvents {
   accessRole: string;
   defaultReminders: Reminder[];
   nextPageToken: string;
-  items: (CalendarEvent & CalendarEventMeta)[];
+  items: CalendarEventWithMeta[];
 }
 
 interface Reminder {

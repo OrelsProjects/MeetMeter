@@ -4,9 +4,10 @@ import { authOptions } from "@/auth/authOptions";
 import axios from "axios";
 import prisma from "@/app/api/_db/db";
 import moment from "moment";
-import { CalendarEvents } from "@/models/calendarEvents";
+import { CalendarEvents, CalendarEventWithMeta } from "@/models/calendarEvents";
 import { canNotifyAt } from "@/app/api/utils";
 import loggerServer from "../../../../../loggerServer";
+import { UserResponse } from "@prisma/client";
 
 type DateType = "day" | "week" | "month";
 
@@ -72,19 +73,54 @@ export async function GET(
       event.canNotifyAt = canNotifyAttendeesAt;
     }
 
-    const allEvents = {
+    const calendarEvents: CalendarEvents = {
       ...response.data,
       items: eventsWithAttendees,
     };
 
-    return NextResponse.json(
-      {
-        ...allEvents,
-        calendarBackgroundColor,
-        calendarForegroundColor,
+    const responseEvents = await prisma.responseEvent.findMany({
+      where: {
+        eventId: {
+          in: calendarEvents.items.map(event => event.id),
+        },
       },
-      { status: 200 },
+      include: {
+        userResponse: {
+          where: {
+            userId: session.user.userId,
+          },
+        },
+      },
+    });
+
+    const calendarEventItems: CalendarEventWithMeta[] = calendarEvents.items.map(
+      item => {
+        const responseEvent = responseEvents.find(
+          response => response.eventId === item.id,
+        );
+
+        const userResponse: UserResponse | null =
+          responseEvent?.userResponse?.[0] || null;
+
+        return {
+          ...item,
+          response: userResponse,
+        };
+      },
     );
+
+    const calendarEventsWithResponse = {
+      ...calendarEvents,
+      items: calendarEventItems,
+    };
+
+    const responseBody: CalendarEvents = {
+      ...calendarEventsWithResponse,
+      calendarBackgroundColor,
+      calendarForegroundColor,
+    };
+
+    return NextResponse.json(responseBody, { status: 200 });
   } catch (error: any) {
     loggerServer.error("Error getting events", session.user.userId, error);
     console.log("Error getting events", JSON.stringify(error));

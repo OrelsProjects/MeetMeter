@@ -13,6 +13,8 @@ import {
   setUserEventResponses,
   updateResponse,
 } from "../features/events/eventsSlice";
+import { CalendarEvent } from "../../models/calendarEvents";
+import { Logger } from "../../logger";
 
 export default function useResponse() {
   const dispatch = useAppDispatch();
@@ -22,6 +24,7 @@ export default function useResponse() {
   const [loadingSend, setLoadingSend] = useState(false);
   const loadingFetchRef = useRef(false);
   const loadingSendRef = useRef(false);
+  const loadingCreateResponse = useRef(false);
 
   const getUserEventResponses = async () => {
     if (loadingFetchRef.current) throw new LoadingError("Loading...");
@@ -74,20 +77,23 @@ export default function useResponse() {
   };
 
   const sendResponse = async (
+    eventId: string,
     responseId: string,
-    response: SendUserResponse,
+    response: Omit<SendUserResponse, "comments">,
   ) => {
     if (loadingSendRef.current) throw new LoadingError("Loading...");
     loadingSendRef.current = true;
     setLoadingSend(true);
     try {
+      debugger;
       const result = await axios.post<UserResponse>(
         `/api/eventResponse/${responseId}/response`,
         {
           response,
+          comments: "from-web",
         },
       );
-      dispatch(updateResponse({ responseId, response: result.data }));
+      dispatch(updateResponse({ eventId, responseId, response: result.data }));
     } catch (error: any) {
       throw error;
     } finally {
@@ -96,9 +102,30 @@ export default function useResponse() {
     }
   };
 
+  const createResponseForUser = async (
+    event: CalendarEvent,
+    calendarName: string,
+  ): Promise<UserResponse> => {
+    if (loadingCreateResponse.current) {
+      throw new LoadingError("Creating response");
+    }
+    loadingCreateResponse.current = true;
+    try {
+      const { data } = await axios.post<UserResponse>(
+        `api/calendar/${calendarName}/event/${event.id}/create-response`,
+      );
+      return data;
+    } catch (error: any) {
+      Logger.error(error);
+      throw error;
+    } finally {
+      loadingCreateResponse.current = false;
+    }
+  };
   return {
     getEventResponse,
     getUserEventResponses,
+    createResponseForUser,
     sendResponse,
     loadingSend,
     loadingFetch,

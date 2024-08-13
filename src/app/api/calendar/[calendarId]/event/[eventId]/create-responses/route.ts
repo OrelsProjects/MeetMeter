@@ -223,7 +223,7 @@ export async function POST(
       { status: 200 },
     );
   } catch (error: any) {
-    debugger;
+
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

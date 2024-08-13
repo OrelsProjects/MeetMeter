@@ -1,8 +1,5 @@
 import React, { useMemo } from "react";
-import {
-  CalendarEvent,
-  CalendarEventMeta,
-} from "../../../models/calendarEvents";
+import { CalendarEventWithMeta } from "../../../models/calendarEvents";
 import { IoMdNotifications } from "react-icons/io";
 import { VscFeedback } from "react-icons/vsc";
 import { Button } from "../../../components/ui/button";
@@ -25,6 +22,9 @@ import {
 import useEvent from "../../../lib/hooks/useEvent";
 import LoadingError from "../../../models/errors/LoadingError";
 import { useRouter } from "next/navigation";
+import Rating from "./rating";
+import { UserResponse } from "@prisma/client";
+import useResponse from "../../../lib/hooks/useResponse";
 
 const colorMapping: Record<string, string> = {
   1: "bg-indigo-400 text-white",
@@ -55,21 +55,30 @@ export const LoadingEventComponent = () => (
 const EventComponent = ({
   event,
   notify,
+  loading,
+  onRatingChange,
   defaultBackgroundColor,
   defaultForegroundColor,
 }: {
-  event: CalendarEvent & CalendarEventMeta;
+  event: CalendarEventWithMeta;
   notify?: {
     calendarName: string;
   };
+  loading?: boolean;
+  onRatingChange: (value: number) => any;
   defaultBackgroundColor?: string;
   defaultForegroundColor?: string;
 }) => {
   const router = useRouter();
   const { user, isAdmin } = useAppSelector(state => state.auth);
-  const { notifyUsersForFeedback, createResponseForUser } = useEvent();
+  const { notifyUsersForFeedback } = useEvent();
+  const { createResponseForUser } = useResponse();
 
   const handleCreateResponse = async () => {
+    if (event.response?.responseEventId) {
+      router.push(`/responses/${event.response.responseEventId}`);
+      return;
+    }
     if (!notify) return;
     const toastId = toast.loading("Creating a response...");
     try {
@@ -152,44 +161,53 @@ const EventComponent = ({
   );
 
   const Content = () => (
-    <div className={"w-full h-fit flex flex-row items-center gap-4"}>
-      <div
-        className={cn(
-          "w-80 h-28 flex flex-col gap-0.5 p-2 rounded-lg text-secondary-foreground transition-all duration-500",
-          colorClassname,
-          { "grayscale opacity-70": disabled },
-        )}
-        style={colorStyle}
-      >
-        <h1 className="font-semibold line-clamp-2">{event.summary}</h1>
-        <p className="font-light text-sm">{TimeRange}</p>
-      </div>
-      <div
-        className={cn("flex flex-row gap-4", {
-          "flex-row-reverse": !canNotify,
-        })}
-      >
-        <div className="w-10 h-10">
-          {canNotify && (
+    <div className="w-full h-40 flex flex-col items-start gap-1 rounded-lg p-2">
+      <div className="w-full h-16 flex flex-row items-center gap-1 md:gap-4">
+        <div
+          className={cn(
+            "w-60 md:w-[360px] h-full flex flex-col gap-0.5 p-2 rounded-lg text-secondary-foreground transition-all duration-500",
+            colorClassname,
+            { "grayscale opacity-70": disabled },
+          )}
+          style={colorStyle}
+        >
+          <h1 className="font-semibold line-clamp-1">{event.summary}</h1>
+          <p className="font-light text-sm">{TimeRange}</p>
+        </div>
+        <div className={cn("flex flex-row gap-2 md:gap-4")}>
+          <div className="w-7 h-7 md:w-10 md:h-10">
             <Button
               variant="ghost"
-              className="px-1"
-              onClick={notifyUsers}
-              disabled={disabled}
+              className="p-2"
+              onClick={() => handleCreateResponse()}
             >
-              <IoMdNotifications className="h-8 w-8 fill-primary" />
+              <VscFeedback className="h-7 w-7 fill-foregroung" />
             </Button>
-          )}
+          </div>
+          <div className="w-7 h-7 md:w-10 md:h-10">
+            {canNotify && (
+              <Button
+                variant="ghost"
+                className="px-1"
+                onClick={notifyUsers}
+                disabled={disabled}
+              >
+                <IoMdNotifications className="w-7 h-7 fill-primary" />
+              </Button>
+            )}
+          </div>
         </div>
-        <div className="w-10 h-10">
-          <Button
-            variant="ghost"
-            className="p-2"
-            onClick={() => handleCreateResponse()}
-          >
-            <VscFeedback className="h-8 w-8 fill-foregroung" />
-          </Button>
-        </div>
+      </div>
+      <div className="w-60 md:w-[360px] flex justify-start items-start">
+        <Rating
+          value={event.response?.rating || null}
+          loading={loading}
+          className="h-12 w-12"
+          size="small"
+          onChange={value => {
+            onRatingChange(value);
+          }}
+        />
       </div>
     </div>
   );

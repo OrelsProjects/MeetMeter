@@ -17,7 +17,7 @@ export const ratingMap = [
     },
     {
       rating: 4,
-      text: "Excellent",
+      text: "Great",
       emoji: "🥳",
     },
   ];

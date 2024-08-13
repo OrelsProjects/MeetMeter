@@ -35,7 +35,7 @@ const NavigationBar: React.FC<NavigationBar> = ({ ...props }) => {
       <Link
         href={item.href}
         className={cn(
-          "flex-1 flex items-center justify-center lg:justify-start lg:hover:bg-muted-foreground/20  lg:rounded-lg lg:p-4 cursor-pointer",
+          "flex-1 flex items-center justify-center lg:justify-start lg:md:hover:bg-muted-foreground/20  lg:rounded-lg lg:p-4 cursor-pointer",
           {
             "lg:bg-muted-foreground/20": isItemActive(item),
           },
