@@ -1,13 +1,13 @@
 import React, { useMemo } from "react";
-import { CalendarEventWithMeta } from "../../../models/calendarEvents";
+import { CalendarEventWithMeta } from "../models/calendarEvents";
 import { IoMdNotifications } from "react-icons/io";
 import { VscFeedback } from "react-icons/vsc";
-import { Button } from "../../../components/ui/button";
+import { Button } from "@/components/ui/button";
 import { toast } from "react-toastify";
 import moment from "moment";
-import { cn } from "../../../lib/utils";
-import { Skeleton } from "../../../components/ui/skeleton";
-import { useAppSelector } from "../../../lib/hooks/redux";
+import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useAppSelector } from "@/lib/hooks/redux";
 import {
   Tooltip,
   TooltipProvider,
@@ -19,12 +19,20 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
-import useEvent from "../../../lib/hooks/useEvent";
-import LoadingError from "../../../models/errors/LoadingError";
+import useEvent from "@/lib/hooks/useEvent";
+import LoadingError from "@/models/errors/LoadingError";
 import { useRouter } from "next/navigation";
-import Rating from "./rating";
-import { UserResponse } from "@prisma/client";
-import useResponse from "../../../lib/hooks/useResponse";
+import Rating from "../app/(content)/home/rating";
+import useResponse from "@/lib/hooks/useResponse";
+
+export const getTimeRange = (start?: string, end?: string) => {
+  const startDate = moment(start).format("HH:mm");
+  const endDate = moment(end).format("HH:mm");
+
+  if (start && end) return `${startDate} - ${endDate}`;
+  if (start) return startDate;
+  return "";
+};
 
 const colorMapping: Record<string, string> = {
   1: "bg-indigo-400 text-white",
@@ -52,6 +60,54 @@ export const LoadingEventComponent = () => (
   </div>
 );
 
+export const EventContainerComponent = ({
+  event,
+  defaultBackgroundColor,
+  defaultForegroundColor,
+  disabled,
+}: {
+  event: CalendarEventWithMeta;
+  defaultBackgroundColor?: string;
+  defaultForegroundColor?: string;
+  disabled?: boolean;
+}) => {
+  const TimeRange = useMemo(
+    () => getTimeRange(event.start.dateTime, event.end.dateTime),
+    [event.start.dateTime, event.end.dateTime],
+  );
+
+  const colorClassname = useMemo(() => {
+    return colorMapping[event.colorId]
+      ? colorMapping[event.colorId]
+      : defaultBackgroundColor
+        ? null
+        : "bg-secondary";
+  }, [event.colorId]);
+
+  const colorStyle = useMemo(() => {
+    return !colorClassname
+      ? {
+          backgroundColor: defaultBackgroundColor,
+          color: defaultForegroundColor,
+        }
+      : {};
+  }, [colorClassname, defaultBackgroundColor, defaultForegroundColor]);
+
+  return (
+    <div
+      className={cn(
+        "w-60 md:w-[360px] h-full flex flex-col gap-0.5 p-2 rounded-lg text-secondary-foreground transition-all duration-500",
+        colorClassname,
+        { "grayscale opacity-70": disabled },
+      )}
+      style={colorStyle}
+    >
+      <h1 className="font-semibold line-clamp-1">{event.summary}</h1>
+      <p className="font-light text-sm">{TimeRange}</p>
+    </div>
+  );
+};
+
 const EventComponent = ({
   event,
   notify,
@@ -65,7 +121,7 @@ const EventComponent = ({
     calendarName: string;
   };
   loading?: boolean;
-  onRatingChange: (value: number) => any;
+  onRatingChange?: (value: number) => any;
   defaultBackgroundColor?: string;
   defaultForegroundColor?: string;
 }) => {
@@ -120,40 +176,10 @@ const EventComponent = ({
     }
   };
 
-  const colorClassname = useMemo(() => {
-    return colorMapping[event.colorId]
-      ? colorMapping[event.colorId]
-      : defaultBackgroundColor
-        ? null
-        : "bg-secondary";
-  }, [event.colorId]);
-
-  const colorStyle = useMemo(() => {
-    return !colorClassname
-      ? {
-          backgroundColor: defaultBackgroundColor,
-          color: defaultForegroundColor,
-        }
-      : {};
-  }, [colorClassname, defaultBackgroundColor, defaultForegroundColor]);
-
   const canNotify = useMemo(() => {
     if (isAdmin && event.organizer.email === user?.email) return !!notify;
     return false;
   }, [event.organizer.email, user?.email]);
-
-  const TimeRange = useMemo(() => {
-    const start = event.start.dateTime
-      ? moment(event.start.dateTime).format("HH:mm")
-      : null;
-    const end = event.end.dateTime
-      ? moment(event.end.dateTime).format("HH:mm")
-      : null;
-
-    if (start && end) return `${start} - ${end}`;
-    if (start) return start;
-    return "";
-  }, [event.start.dateTime, event.end.dateTime]);
 
   const disabled = useMemo(
     () => event.canNotifyAt !== "now",
@@ -163,17 +189,12 @@ const EventComponent = ({
   const Content = () => (
     <div className="w-full h-40 flex flex-col items-start gap-1 rounded-lg p-2">
       <div className="w-full h-16 flex flex-row items-center gap-1 md:gap-4">
-        <div
-          className={cn(
-            "w-60 md:w-[360px] h-full flex flex-col gap-0.5 p-2 rounded-lg text-secondary-foreground transition-all duration-500",
-            colorClassname,
-            { "grayscale opacity-70": disabled },
-          )}
-          style={colorStyle}
-        >
-          <h1 className="font-semibold line-clamp-1">{event.summary}</h1>
-          <p className="font-light text-sm">{TimeRange}</p>
-        </div>
+        <EventContainerComponent
+          event={event}
+          defaultBackgroundColor={defaultBackgroundColor}
+          defaultForegroundColor={defaultForegroundColor}
+          disabled={disabled}
+        />
         <div className={cn("flex flex-row gap-2 md:gap-4")}>
           <div className="w-7 h-7 md:w-10 md:h-10">
             <Button
@@ -204,9 +225,7 @@ const EventComponent = ({
           loading={loading}
           className="h-12 w-12"
           size="small"
-          onChange={value => {
-            onRatingChange(value);
-          }}
+          onChange={onRatingChange}
         />
       </div>
     </div>

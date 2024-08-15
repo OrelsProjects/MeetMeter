@@ -10,7 +10,7 @@ import {
   selectEvents,
   setEvents,
 } from "../../../lib/features/events/eventsSlice";
-import EventComponent, { LoadingEventComponent } from "../home/eventComponent";
+import EventComponent, { LoadingEventComponent } from "../../../components/eventComponent";
 import { Logger } from "../../../logger";
 import moment from "moment";
 import useResponse from "../../../lib/hooks/useResponse";

@@ -2,14 +2,15 @@
 
 import axios from "axios";
 import React, { useMemo } from "react";
-import CustomPieChart, {
-  PieChartData,
-} from "../../../components/charts/pieChart";
-import { Statistics } from "../../../models/statistics";
+import CustomPieChart, { PieChartData } from "@/components/charts/pieChart";
+import { Statistics } from "@/models/statistics";
 import StatisticsCard from "./statisticsCard";
 import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "../../../lib/utils";
+import { cn } from "@/lib/utils";
 import EventStatisticsCard from "./eventStatisticsCard";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import CustomTooltip from "../../../components/ui/customTooltip";
 
 const SectionContainer = ({
   children,
@@ -36,7 +37,7 @@ export default function DashboardPage() {
     if (loading) return;
     setLoading(true);
     try {
-      const response = await axios.get<Statistics>("api/statistics");
+      const response = await axios.get<Statistics>("/api/statistics");
       setData(response.data);
     } catch (error: any) {
       console.error(error);
@@ -142,48 +143,70 @@ export default function DashboardPage() {
   );
 
   const LowerSection = () => (
-    <div className="w-full rounded-lg flex flex-col md:flex-row gap-4">
-      <div className="w-full flex flex-col gap-4">
-        <span className="font-semibold text-2xl">Best Meetings</span>
-        {loading
-          ? Array.from({ length: 2 }).map((_, index) => (
-              <EventStatisticsCard key={index} loading={loading} />
-            ))
-          : data?.bestMeetings?.map((meeting, index) => (
-              <EventStatisticsCard
-                key={index}
-                statistic={meeting}
-                loading={loading}
-              />
-            ))}
+    <div className="w-full h-fit flex flex-col gap-3">
+      <div className="w-full rounded-lg flex flex-col md:flex-row gap-4">
+        <div className="w-full flex flex-col gap-4">
+          <span className="font-semibold text-2xl">Best Meetings</span>
+          {loading
+            ? Array.from({ length: 2 }).map((_, index) => (
+                <EventStatisticsCard key={index} loading={loading} />
+              ))
+            : data?.bestMeetings?.map((meeting, index) => (
+                <EventStatisticsCard
+                  key={index}
+                  statistic={meeting}
+                  loading={loading}
+                />
+              ))}
+        </div>
+        <div className="w-full flex flex-col gap-4">
+          <span className="font-semibold text-2xl">Worst Meetings</span>
+          {loading
+            ? Array.from({ length: 2 }).map((_, index) => (
+                <EventStatisticsCard key={index} loading={loading} />
+              ))
+            : data?.worstMeetings?.map((meeting, index) => (
+                <EventStatisticsCard
+                  key={index}
+                  statistic={meeting}
+                  loading={loading}
+                />
+              ))}
+        </div>
       </div>
-      <div className="w-full flex flex-col gap-4">
-        <span className="font-semibold text-2xl">Worst Meetings</span>
-        {loading
-          ? Array.from({ length: 2 }).map((_, index) => (
-              <EventStatisticsCard key={index} loading={loading} />
-            ))
-          : data?.worstMeetings?.map((meeting, index) => (
-              <EventStatisticsCard
-                key={index}
-                statistic={meeting}
-                loading={loading}
-              />
-            ))}
-      </div>
+      <Button
+        variant="link"
+        className="self-end md:hover:cursor-pointer font-medium text-foreground text-sm px-0"
+        asChild
+      >
+        <Link href="/dashboard/all">See all</Link>
+      </Button>
     </div>
+  );
+
+  const InfoText = () => (
+    <span className="text-foreground/60">
+      Reflects only events that:
+      <br />• have 2 or more attendees.
+      <br />• were organized by you.
+    </span>
   );
 
   return (
     <div className="h-full w-full flex flex-col justify-center items-center gap-6 overflow-clip">
-      <h1 className="self-center text-3xl font-semibold">
-        Your team&apos;s weekly meetings summary
-      </h1>
+      <div className="self-center relative">
+        <h1 className="self-center text-3xl font-semibold text-center md:text-center">
+          Your team&apos;s weekly meetings summary
+        </h1>
+        <CustomTooltip>
+          <InfoText />
+        </CustomTooltip>
+      </div>
       <div className="w-full h-full flex flex-col gap-4 overflow-auto">
         <SectionContainer>
           <UpperSection />
         </SectionContainer>
-        <SectionContainer className="flex-row">
+        <SectionContainer className="flex-row pb-1">
           <LowerSection />
         </SectionContainer>
       </div>

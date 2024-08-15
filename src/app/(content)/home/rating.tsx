@@ -89,9 +89,7 @@ const Rating = ({
             selected={!!value && value === index + 1}
             value={index}
             size={size}
-            onChange={value => {
-              onChange?.(value);
-            }}
+            onChange={onChange}
             className={cn(className)}
           />
         ),

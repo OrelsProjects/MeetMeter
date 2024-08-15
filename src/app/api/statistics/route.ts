@@ -9,6 +9,7 @@ import {
 } from "@/models/statistics";
 import { UserResponse } from "@prisma/client";
 import { UserResponseWithEvent } from "../../../models/userResponse";
+import moment from "moment";
 
 const setOneDecimal = (num: number) => Math.round(num * 10) / 10;
 
@@ -18,6 +19,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   try {
+    const startDate = moment().utc().startOf("week").toISOString();
+    const endDate = moment().utc().endOf("week").toISOString();
+
     const userResponses = await prisma.userResponse.findMany({
       include: {
         responseEvent: true,
@@ -27,12 +31,25 @@ export async function GET(req: NextRequest) {
           not: null,
         },
         responseEvent: {
-          OR: [
+          AND: [
             {
-              organizer: session.user.userId,
+              start: {
+                gte: startDate,
+              },
+
+              end: {
+                lte: endDate,
+              },
             },
             {
-              organizerEmail: session.user.email,
+              OR: [
+                {
+                  organizer: session.user.userId,
+                },
+                {
+                  organizerEmail: session.user.email,
+                },
+              ],
             },
           ],
         },
@@ -102,17 +119,6 @@ export async function GET(req: NextRequest) {
       }
     });
 
-    /**
-       * export type StatisticsWithEvent = StatisticsBase & {
-  infoText: string;
-} & { event: ResponseEvent };
- export interface StatisticsBase {
-  value: number | string;
-  change?: number;
-}
-
-
-       */
     const worstMeetings: StatisticsWithEvent[] = Object.entries(
       eventIdToUserResponses,
     )

@@ -13,12 +13,13 @@ import {
   selectEvents,
   setEvents,
 } from "../../../lib/features/events/eventsSlice";
-import EventComponent, { LoadingEventComponent } from "./eventComponent";
+import EventComponent, { LoadingEventComponent } from "../../../components/eventComponent";
 import { Logger } from "../../../logger";
 import moment from "moment";
 import HintDownloadAppIOS from "./hintDownloadAppIOS";
 import useResponse from "../../../lib/hooks/useResponse";
 import useEvent from "../../../lib/hooks/useEvent";
+import CustomTooltip from "../../../components/ui/customTooltip";
 
 export default function Home() {
   const dispatch = useAppDispatch();
@@ -133,6 +134,13 @@ export default function Home() {
     }
   };
 
+  const InfoText = () => (
+    <span className="text-foreground/60">
+      Shows only events that:
+      <br />• have 2 or more attendees.
+    </span>
+  );
+
   return (
     <div className="w-full h-full overflow-clip flex flex-col gap-4 justify-between">
       <div className=" w-11/12 md:w-full overflow-y-auto overflow-x-clip flex flex-col gap-6">
@@ -146,14 +154,19 @@ export default function Home() {
             </div>
           </div>
         ) : (
-          <div className="flex flex-col gap-4">
-            <span className="text-2xl font-bold text-foreground/80">
+          <div className="w-full flex flex-col gap-4 relative">
+            <div className="w-fit relative">
+            <span className="w-fit text-2xl font-bold text-foreground/80">
               {type === "day"
                 ? "Today"
                 : type === "week"
                   ? `This week (${weekDateRange})`
                   : "This month"}
             </span>
+            <CustomTooltip>
+              <InfoText />
+            </CustomTooltip>
+            </div>
             {Object.entries(dayToEvent).map(([day, events]) => (
               <div className="flex flex-col gap-1" key={`events-${day}`}>
                 <span className="text-lg font-bold">{day}</span>

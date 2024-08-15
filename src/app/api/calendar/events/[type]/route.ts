@@ -1,15 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/auth/authOptions";
-import axios from "axios";
-import prisma from "@/app/api/_db/db";
 import moment from "moment";
-import { CalendarEvents, CalendarEventWithMeta } from "@/models/calendarEvents";
+import axios from "axios";
+import { authOptions } from "@/auth/authOptions";
+import prisma from "@/app/api/_db/db";
+import {
+  CalendarEvents,
+  CalendarEventWithMeta,
+  DateType,
+} from "@/models/calendarEvents";
 import { canNotifyAt } from "@/app/api/utils";
-import loggerServer from "../../../../../loggerServer";
+import loggerServer from "@/loggerServer";
 import { UserResponse } from "@prisma/client";
-
-type DateType = "day" | "week" | "month";
 
 export async function GET(
   req: NextRequest,
@@ -46,14 +48,14 @@ export async function GET(
     const calendarBackgroundColor = responsePrimary.data.backgroundColor;
     const calendarForegroundColor = responsePrimary.data.foregroundColor;
 
-    const now = moment.now();
-    const startOfDay = moment(now)
+    const startDate = moment()
       .startOf(params.type as DateType)
       .toISOString();
-    const endOfDay = moment(now)
+    const endDate = moment()
       .endOf(params.type as DateType)
       .toISOString();
-    const url = `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${startOfDay}&timeMax=${endOfDay}&orderBy=startTime&singleEvents=true`;
+
+    const url = `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${startDate}&timeMax=${endDate}&orderBy=startTime&singleEvents=true`;
     const response = await axios.get<CalendarEvents>(url, {
       headers: {
         Authorization: `Bearer ${latestAccount.access_token}`,
@@ -61,7 +63,7 @@ export async function GET(
     });
 
     let eventsWithAttendees = response.data.items.filter(
-      event => event.attendees?.length,
+      event => event.attendees?.length > 1,
     );
 
     // check  for each event if canNotify
@@ -93,8 +95,8 @@ export async function GET(
       },
     });
 
-    const calendarEventItems: CalendarEventWithMeta[] = calendarEvents.items.map(
-      item => {
+    const calendarEventItems: CalendarEventWithMeta[] =
+      calendarEvents.items.map(item => {
         const responseEvent = responseEvents.find(
           response => response.eventId === item.id,
         );
@@ -106,8 +108,7 @@ export async function GET(
           ...item,
           response: userResponse,
         };
-      },
-    );
+      });
 
     const calendarEventsWithResponse = {
       ...calendarEvents,

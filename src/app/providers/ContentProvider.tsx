@@ -40,9 +40,6 @@ const ContentProvider: React.FC<ContentProviderProps> = ({ children }) => {
       <div
         className={cn(
           "w-full lg:max-w-[65rem] mx-auto lg:flex p-4 relative p-safe",
-          // {
-          //   "": user,
-          // },
         )}
         style={{
           height: contentHeight,

@@ -42,7 +42,7 @@ export default function ContentLayout({ children }: RootLayoutProps) {
                 components: "googlepay,buttons",
               }}
             >
-              <AnimationProvider className="h-full overflow-auto">
+              <AnimationProvider className="h-full overflow-auto pb-4">
                 {children}
               </AnimationProvider>
             </PayPalScriptProvider>

@@ -42,6 +42,8 @@ export default function CustomPieChart({
   }));
 
   const Label = (value: number) => {
+    // if one of the values is 100, return empty string
+    if (value === 1 || value === 0) return "";
     // Calculate the percentage of the total
     const percentage = (
       (value / formattedData.reduce((a, b) => a + b.y, 0)) *

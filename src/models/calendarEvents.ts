@@ -1,5 +1,7 @@
 import { UserResponse } from "@prisma/client";
 
+export type DateType = "day" | "week" | "month";
+
 export interface CalendarEventMeta {
   canNotifyAt?: Date | "now";
   response: UserResponse | null;

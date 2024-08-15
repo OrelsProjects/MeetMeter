@@ -28,7 +28,7 @@ export default function EventStatisticsCard({
     );
   };
 
-  return (
+return (
     <div
       className={cn(
         "h-[7.5rem] w-full  overflow-hidden rounded-lg bg-card",
