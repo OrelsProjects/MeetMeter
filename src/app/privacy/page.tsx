@@ -34,7 +34,11 @@ function PrivacyPolicy() {
         </h2>
         <ul className="list-disc text-foreground font-light pl-5">
           <li>Account Information: email, name, calendar details.</li>
-          <li>Calendar Data: We collect details of your meetings, including the organizer, attendees, and timestamps, to provide personalized services and functionalities.</li>
+          <li>
+            Calendar Data: We collect details of your meetings, including the
+            organizer, attendees, and timestamps, to provide personalized
+            services and functionalities.
+          </li>
         </ul>
       </section>
 
@@ -44,7 +48,32 @@ function PrivacyPolicy() {
           Google API and OAuth Consent
         </h2>
         <p className="text-foreground font-light">
-          Our service integrates with Google APIs, and we use OAuth 2.0 to request access to your calendar data. We specifically request scopes that allow us to read calendar events to enhance service functionality. You can manage or revoke our access at any time through Google&apos;s security settings.
+          Our service integrates with Google APIs, and we use OAuth 2.0 to
+          request access to your calendar data. We specifically request scopes
+          that allow us to read calendar events to enhance service
+          functionality. You can manage or revoke our access at any time through
+          Google&apos;s security settings.
+        </p>
+      </section>
+
+      {/* Data Protection and Security */}
+      <section className="mb-8">
+        <h2 className="text-2xl font-medium mb-2 text-foreground dark:text-foreground">
+          Data Protection and Security
+        </h2>
+        <p className="text-foreground font-light">
+          We take reasonable steps to protect your personal information. Our
+          application uses Next.js, which follows industry standards for
+          security, and we rely on trusted third-party services such as Google
+          APIs for managing sensitive data. While we do not implement advanced
+          security features like encryption or dedicated security audits, we
+          monitor the performance and security of our application to address
+          potential vulnerabilities.
+        </p>
+        <p className="text-foreground font-light">
+          If we become aware of any data breaches or security incidents, we will
+          notify affected users as soon as possible and take steps to resolve
+          the issue.
         </p>
       </section>
 
@@ -54,7 +83,9 @@ function PrivacyPolicy() {
           Your Rights
         </h2>
         <p className="text-foreground font-light">
-          You have the right to access, correct, or delete your personal information. You can also revoke our access to your data at any time by deleting your account or through your Google account settings.
+          You have the right to access, correct, or delete your personal
+          information. You can also revoke our access to your data at any time
+          by deleting your account or through your Google account settings.
         </p>
       </section>
 
@@ -78,7 +109,8 @@ function PrivacyPolicy() {
           Sharing Your Information
         </h2>
         <p className="text-foreground font-light">
-          We do not share any of your information with anyone, except as necessary to provide the Services or as required by law.
+          We do not share any of your information with anyone, except as
+          necessary to provide the Services or as required by law.
         </p>
       </section>
 
@@ -88,7 +120,8 @@ function PrivacyPolicy() {
           Contact Us
         </h2>
         <p className="text-foreground font-light">
-          If you have any questions about this Privacy Policy, please contact us at:
+          If you have any questions about this Privacy Policy, please contact us
+          at:
         </p>
         <Link
           href="mailto:orelsmail@gmail.com"
